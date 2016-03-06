@@ -9,10 +9,6 @@ package com.routesearch.route;
 
 import java.util.*;
 
-import com.routesearch.graph.Edge;
-import com.routesearch.graph.Vertex;
-import com.routesearch.graph.WeightedDirectedGraph;
-
 public final class Route {
 	/**
 	 * 你需要完成功能的入口
@@ -21,20 +17,22 @@ public final class Route {
 	 * @since 2016-3-4
 	 * @version V1
 	 */
-	public static String searchRoute(String graphContent, String condition) {
-		List<Vertex> vertices =  new ArrayList<Vertex>();
-		List<Edge> edges = new ArrayList<Edge>();
-		constructVerticesAndEges(vertices,edges,graphContent);
+	public static String searchRoute(String graphContent, String condition) {		
+		/** a map from vertices' IDs to vertices' indices*/
+		Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	
+		/** adjacent matrices of edges' IDs and weights*/
+		int n = 0;
+		int[][] edgeIDs = new int[n][n];
+		int[][] edgeWeights = new int[n][n];
+
+		/** neighbors of each vertex*/
+		List[] neighbors = new ArrayList[n];
 		
-		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertices, edges);
 		
 		
 		return "hello world!";
 	}
-
-	private static void constructVerticesAndEges(List<Vertex> vertices, List<Edge> edges, String graphContent) {
-		// TODO Auto-generated method stub
-		
-	}
-
+	
+	
 }
