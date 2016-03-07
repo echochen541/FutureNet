@@ -29,7 +29,7 @@ public final class Route {
 		
 		int sourceIndex = 0, destinationIndex = 0;
 		/** IncludingSet stores the indices of the vertices in V' */
-		List<Integer> IncludingSet = new ArrayList<Integer>();
+		List<Integer> includingSet = new ArrayList<Integer>();
 
 
 		String[] lines = graphContent.split("\\n");
@@ -53,9 +53,13 @@ public final class Route {
 			int sIndex = vertexID2Index.get(sID);
 			int dIndex = vertexID2Index.get(dID);
 
-			if (edgeWeights[sIndex][dIndex] == 0
-					|| edgeWeights[sIndex][dIndex] < weight) {
+			if (edgeWeights[sIndex][dIndex] == 0) {
 				neighbors.get(sIndex).add(dIndex);
+				edgeIDs[sIndex][dIndex] = edgeID;
+				edgeWeights[sIndex][dIndex] = weight;
+			}
+			
+			if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
@@ -67,7 +71,7 @@ public final class Route {
 		String[] V = (demand[2]).split("\\|");
 
 		for (String v : V) {
-			IncludingSet.add(vertexID2Index.get(Integer.parseInt(v)));
+			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
 		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertexID2Index, neighbors, edgeIDs, edgeWeights);
@@ -97,7 +101,7 @@ public final class Route {
 		/** print s, d and includingSet*/
 		System.out.println(sourceIndex);
 		System.out.println(destinationIndex);
-		System.out.println(IncludingSet);
+		System.out.println(includingSet);
 		
 		return resultStr;
 	}

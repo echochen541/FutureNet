@@ -7,7 +7,7 @@ import java.util.*;
  *
  */
 public class WeightedDirectedGraph {
-	/** map of vertice's to indices,thus each vertex is represented by index */
+	/** map of vertice's to indices,thus each vertex is represented by a index */
 	private Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
 	/**
 	 * neighbors[i] stores the neighbors of the vertex indexed as i, and i's
@@ -16,12 +16,12 @@ public class WeightedDirectedGraph {
 	private List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	/**
 	 * if there exists a edge from the vertex indexed as i to the vertex indexed
-	 * as j, edgeIDs[i][j] store the edge's ID
+	 * as j, edgeIDs[i][j] stores the edge's ID
 	 */
 	private int[][] edgeIDs = new int[600][600];
 	/**
 	 * if there exists a edge from the vertex indexed as i to the vertex indexed
-	 * as j, edgeIDs[i][j] store the edge's weight
+	 * as j, edgeIDs[i][j] stores the edge's weight
 	 */
 	private int[][] edgeWeights = new int[600][600];
 
