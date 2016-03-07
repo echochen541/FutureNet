@@ -22,9 +22,9 @@ public class Main {
 //		String conditionFilePath = args[1];
 //		String resultFilePath = args[2];
 
-		String graphFilePath = "E:/workspace/Git/future_net/future_net/test/topo.csv";
-		String conditionFilePath = "E:/workspace/Git/future_net/future_net/test/demand.csv";
-		String resultFilePath = "E:/workspace/Git/future_net/future_net/test/result.csv";
+		String graphFilePath = "E:/workspace/Git/future_net/future_net/test/case1/topo.csv";
+		String conditionFilePath = "E:/workspace/Git/future_net/future_net/test/case1/demand.csv";
+		String resultFilePath = "E:/workspace/Git/future_net/future_net/test/case1/result.csv";
 		
 		LogUtil.printLog("Begin");
 

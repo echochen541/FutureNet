@@ -23,14 +23,14 @@ public final class Route {
 		String resultStr = "hello world!";
 
 		Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
 		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 		int[][] edgeIDs = new int[600][600];
 		int[][] edgeWeights = new int[600][600];
-		
+
 		int sourceIndex = 0, destinationIndex = 0;
 		/** IncludingSet stores the indices of the vertices in V' */
 		List<Integer> includingSet = new ArrayList<Integer>();
-
 
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -42,12 +42,16 @@ public final class Route {
 			int weight = Integer.parseInt(line[3]);
 
 			if (!vertexID2Index.containsKey(sID)) {
+				index++;
 				neighbors.add(new ArrayList<Integer>());
-				vertexID2Index.put(sID, ++index);
+				vertexID2Index.put(sID, index);
+				index2VertexID.put(index, sID);
 			}
 			if (!vertexID2Index.containsKey(dID)) {
+				index++;
 				neighbors.add(new ArrayList<Integer>());
-				vertexID2Index.put(dID, ++index);
+				vertexID2Index.put(dID, index);
+				index2VertexID.put(index, dID);
 			}
 
 			int sIndex = vertexID2Index.get(sID);
@@ -58,8 +62,9 @@ public final class Route {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
-			
-			if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
+
+			if (edgeWeights[sIndex][dIndex] != 0
+					&& edgeWeights[sIndex][dIndex] > weight) {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
@@ -74,15 +79,19 @@ public final class Route {
 			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertexID2Index, neighbors, edgeIDs, edgeWeights);
-		
+		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertexID2Index,
+				neighbors, edgeIDs, edgeWeights);
+
 		int n = neighbors.size();
 		/** print the neighbors of each vertex */
 		for (int i = 0; i < n; i++) {
+			System.out.print("vertex ID is " + index2VertexID.get(i)
+					+ ",vertex index is " + i + ":");
 			System.out.println(neighbors.get(i));
 		}
 
 		/** print the matrix of edges' IDs */
+		System.out.println("matrix of edges' IDs");
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				System.out.print(edgeIDs[i][j] + "  ");
@@ -91,6 +100,7 @@ public final class Route {
 		}
 
 		/** print the matrix of edges' weights */
+		System.out.println("matrix of edges' weights");
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				System.out.print(edgeWeights[i][j] + "  ");
@@ -98,11 +108,11 @@ public final class Route {
 			System.out.println();
 		}
 
-		/** print s, d and includingSet*/
+		/** print s, d and includingSet */
 		System.out.println(sourceIndex);
 		System.out.println(destinationIndex);
 		System.out.println(includingSet);
-		
+
 		return resultStr;
 	}
 }
