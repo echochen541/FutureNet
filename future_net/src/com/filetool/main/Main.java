@@ -13,14 +13,19 @@ import com.routesearch.route.Route;
  */
 public class Main {
 	public static void main(String[] args) {
-		if (args.length != 3) {
-			System.err.println("please input args: graphFilePath, conditionFilePath, resultFilePath");
-			return;
-		}
+		// if (args.length != 3) {
+		// System.err.println("please input args: graphFilePath,
+		// conditionFilePath, resultFilePath");
+		// return;
+		// }
 
-		String graphFilePath = args[0];
-		String conditionFilePath = args[1];
-		String resultFilePath = args[2];
+		// String graphFilePath = args[0];
+		// String conditionFilePath = args[1];
+		// String resultFilePath = args[2];
+
+		String graphFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/topo.csv";
+		String conditionFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/demand.csv";
+		String resultFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/result.csv";
 
 		LogUtil.printLog("Begin");
 
