@@ -7,25 +7,29 @@ import java.util.*;
  *
  */
 public class WeightedDirectedGraph {
-	private List<Vertex> vertices =  new ArrayList<Vertex>();
-	private List<Edge> edges = new ArrayList<Edge>();
-	private Map<Integer, Integer> vertexIDToIndex = new HashMap<Integer, Integer>();
-	private int[][] weightedAdjacencyMatrix;
-	
-	public WeightedDirectedGraph(List<Vertex> vertices, List<Edge> edges) {
-		this.vertices = vertices;
-		this.edges = edges;
-		constructVertexIDToIndex();
-		constructWeightedAdjacencyMatrix();
-	}
+	/** map of vertice's to indices,thus each vertex is represented by index */
+	private Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	/**
+	 * neighbors[i] stores the neighbors of the vertex indexed as i, and i's
+	 * neighbors are indices of the vertices
+	 */
+	private List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
+	/**
+	 * if there exists a edge from the vertex indexed as i to the vertex indexed
+	 * as j, edgeIDs[i][j] store the edge's ID
+	 */
+	private int[][] edgeIDs = new int[600][600];
+	/**
+	 * if there exists a edge from the vertex indexed as i to the vertex indexed
+	 * as j, edgeIDs[i][j] store the edge's weight
+	 */
+	private int[][] edgeWeights = new int[600][600];
 
-	private void constructWeightedAdjacencyMatrix() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void constructVertexIDToIndex() {
-		// TODO Auto-generated method stub
-		
+	public WeightedDirectedGraph(Map<Integer, Integer> vertexID2Index,
+			List<List<Integer>> neighbors, int[][] edgeIDs, int[][] edgeWeights) {
+		this.vertexID2Index = vertexID2Index;
+		this.neighbors = neighbors;
+		this.edgeIDs = edgeIDs;
+		this.edgeWeights = edgeWeights;
 	}
 }
