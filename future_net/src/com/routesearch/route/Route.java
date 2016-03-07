@@ -9,6 +9,8 @@ package com.routesearch.route;
 
 import java.util.*;
 
+import com.routesearch.graph.WeightedDirectedGraph;
+
 public final class Route {
 	/**
 	 * 你需要完成功能的入口
@@ -20,26 +22,15 @@ public final class Route {
 	public static String searchRoute(String graphContent, String condition) {
 		String resultStr = "hello world!";
 
-		/** map of vertice's to indices,thus each vertex is represented by index */
 		Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
-		/**
-		 * neighbors[i] stores the neighbors of the vertex indexed as i, and i's
-		 * neighbors are indices of the vertices
-		 */
 		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
-		/**
-		 * if there exists a edge from the vertex indexed as i to the vertex
-		 * indexed as j, edgeIDs[i][j] store the edge's ID
-		 */
 		int[][] edgeIDs = new int[600][600];
-		/**
-		 * if there exists a edge from the vertex indexed as i to the vertex
-		 * indexed as j, edgeIDs[i][j] store the edge's weight
-		 */
 		int[][] edgeWeights = new int[600][600];
+		
+		int sourceIndex = 0, destinationIndex = 0;
 		/** IncludingSet stores the indices of the vertices in V' */
 		List<Integer> IncludingSet = new ArrayList<Integer>();
-		int sourceIndex = 0, destinationIndex = 0;
+
 
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -79,6 +70,8 @@ public final class Route {
 			IncludingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
+		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertexID2Index, neighbors, edgeIDs, edgeWeights);
+		
 		int n = neighbors.size();
 		/** print the neighbors of each vertex */
 		for (int i = 0; i < n; i++) {
