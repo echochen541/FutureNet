@@ -30,7 +30,7 @@ public final class Route {
 	private static int minCost = Integer.MAX_VALUE;
 
 	public static String searchRoute(String graphContent, String condition) {
-		String resultStr = "hello world!";
+		StringBuffer resultSb = new StringBuffer();
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
 		for (int i = 0; i < lines.length; i++) {
@@ -77,34 +77,6 @@ public final class Route {
 		}
 
 		int n = neighbors.size();
-		/** print the neighbors of each vertex */
-		for (int i = 0; i < n; i++) {
-			System.out.print("vertex ID is " + index2VertexID.get(i) + ",vertex index is " + i + ":");
-			System.out.println(neighbors.get(i));
-		}
-
-		/** print the matrix of edges' IDs */
-		System.out.println("matrix of edges' IDs");
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				System.out.print(edgeIDs[i][j] + "  ");
-			}
-			System.out.println();
-		}
-
-		/** print the matrix of edges' weights */
-		System.out.println("matrix of edges' weights");
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				System.out.print(edgeWeights[i][j] + "  ");
-			}
-			System.out.println();
-		}
-
-		/** print s, d and includingSet */
-		System.out.println(sourceIndex);
-		System.out.println(destinationIndex);
-		System.out.println(includingSet);
 
 		/**
 		 * visited[i] == false represents the vertex i hasn't been visited, vice
@@ -112,9 +84,19 @@ public final class Route {
 		 */
 		visited = new boolean[n];
 
-		List<Integer> path = new ArrayList<Integer>();		
+		List<Integer> path = new ArrayList<Integer>();
 		searchPath(sourceIndex, destinationIndex, path, 0);
-		return resultStr;
+
+		int pre = sourceIndex;
+		if (minCost != 0) {
+			for (Integer i : minPath) {
+				resultSb.append(edgeIDs[pre][i] + "|");
+				pre = i;
+			}
+			resultSb.append(edgeIDs[pre][destinationIndex]);
+			return resultSb.toString();
+		}
+		return "NA";
 	}
 
 	private static void searchPath(int s, int d, List<Integer> path, int cost) {
@@ -122,42 +104,27 @@ public final class Route {
 		boolean removed = false;
 		for (Integer i : neighbors.get(s)) {
 			int weight = edgeWeights[s][i];
-			// System.out.println("from " + s + " to " + i);
 			if (weight == 0 || visited[i]) {
-				// System.out.println("no edge or " + i + " has been visited!");
 				continue;
 			}
 			if (i == d) {
-				// System.out.println("Reach " + d);
-				System.out.println(path +"," +includingSet);
 				if (includingSet.size() == 0) {
 					cost += weight;
-//					System.out.println("Find a path: " + path + " cost: " + cost + " minCost: " + minCost);
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-//						System.out.println("hahaha minPath is" + minPath);
 					}
 				}
 				continue;
 			}
 			path.add(i);
-			// System.out.println("add " + i + " to path, path now is " + path);
-			if (includingSet.contains(i)) {
-				includingSet.remove(i);
-				removed = true;
-				// System.out.println("remove " + i + " from includingSet,
-				// includingSet now is " + includingSet);
-			}
-			// System.out.println("Search " + i + " to " + d + " cost is " +
-			// (cost + weight));
+			removed = includingSet.remove(i);
 			searchPath(i, d, path, cost + weight);
 			path.remove(i);
 			visited[i] = false;
-			if (removed) {
+
+			if (removed == true) {
 				includingSet.add(i);
-				// System.out.println("add " + i + " to includingSet,
-				// includingSet now is " + includingSet);
 			}
 		}
 	}
