@@ -17,20 +17,20 @@ public final class Route {
 	 * @since 2016-3-4
 	 * @version V1
 	 */
-
+	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	private static Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
+	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
+	private static int[][] edgeIDs = new int[600][600];
+	private static int[][] edgeWeights = new int[600][600];
+	private static int sourceIndex = 0;
+	private static int destinationIndex = 0;
+	private static List<Integer> includingSet = new ArrayList<Integer>();
+	private static boolean[] visited;
+	private static List<Integer> path = new ArrayList<Integer>();
+	private static int minCost = 0;
+	
 	public static String searchRoute(String graphContent, String condition) {
 		String resultStr = "hello world!";
-
-		Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
-		Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
-		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
-		int[][] edgeIDs = new int[600][600];
-		int[][] edgeWeights = new int[600][600];
-
-		int sourceIndex = 0, destinationIndex = 0;
-		/** IncludingSet stores the indices of the vertices in V' */
-		List<Integer> includingSet = new ArrayList<Integer>();
-
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
 		for (int i = 0; i < lines.length; i++) {
@@ -107,6 +107,11 @@ public final class Route {
 		System.out.println(destinationIndex);
 		System.out.println(includingSet);
 
+		/** visited[i] == false represents the vertex i hasn't been visited, vice versa*/
+		visited = new boolean[n];
+		
+		
+		
 		return resultStr;
 	}
 }
