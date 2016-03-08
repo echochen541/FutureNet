@@ -67,7 +67,6 @@ public final class Route {
 				edgeWeights[sIndex][dIndex] = weight;
 			}
 		}
-
 		String[] demand = condition.split(",|\\n");
 		sourceIndex = vertexID2Index.get(Integer.parseInt(demand[0]));
 		destinationIndex = vertexID2Index.get(Integer.parseInt(demand[1]));
@@ -113,25 +112,52 @@ public final class Route {
 		 */
 		visited = new boolean[n];
 
-		List<Integer> path = new ArrayList<Integer>();
-		int cost = 0;
-		searchPath(sourceIndex, destinationIndex, cost);
-
+		List<Integer> path = new ArrayList<Integer>();		
+		searchPath(sourceIndex, destinationIndex, path, 0);
 		return resultStr;
 	}
 
-	private static void searchPath(int s, int d, int cost) {
+	private static void searchPath(int s, int d, List<Integer> path, int cost) {
 		visited[s] = true;
+		boolean removed = false;
 		for (Integer i : neighbors.get(s)) {
 			int weight = edgeWeights[s][i];
+			// System.out.println("from " + s + " to " + i);
 			if (weight == 0 || visited[i]) {
+				// System.out.println("no edge or " + i + " has been visited!");
 				continue;
 			}
 			if (i == d) {
+				// System.out.println("Reach " + d);
+				System.out.println(path +"," +includingSet);
 				if (includingSet.size() == 0) {
 					cost += weight;
-					minCost = Math.min(cost, minCost); 
+//					System.out.println("Find a path: " + path + " cost: " + cost + " minCost: " + minCost);
+					if (cost < minCost) {
+						minCost = cost;
+						minPath = new ArrayList<Integer>(path);
+//						System.out.println("hahaha minPath is" + minPath);
+					}
 				}
+				continue;
+			}
+			path.add(i);
+			// System.out.println("add " + i + " to path, path now is " + path);
+			if (includingSet.contains(i)) {
+				includingSet.remove(i);
+				removed = true;
+				// System.out.println("remove " + i + " from includingSet,
+				// includingSet now is " + includingSet);
+			}
+			// System.out.println("Search " + i + " to " + d + " cost is " +
+			// (cost + weight));
+			searchPath(i, d, path, cost + weight);
+			path.remove(i);
+			visited[i] = false;
+			if (removed) {
+				includingSet.add(i);
+				// System.out.println("add " + i + " to includingSet,
+				// includingSet now is " + includingSet);
 			}
 		}
 	}
