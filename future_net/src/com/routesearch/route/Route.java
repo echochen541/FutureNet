@@ -11,7 +11,8 @@ import java.util.*;
 
 public final class Route {
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
-	private static Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
+	// private static Map<Integer, Integer> index2VertexID = new
+	// HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	private static int[][] edgeIDs = new int[600][600];
 	private static int[][] edgeWeights = new int[600][600];
@@ -37,13 +38,13 @@ public final class Route {
 				index++;
 				neighbors.add(new ArrayList<Integer>());
 				vertexID2Index.put(sID, index);
-				index2VertexID.put(index, sID);
+				// index2VertexID.put(index, sID);
 			}
 			if (!vertexID2Index.containsKey(dID)) {
 				index++;
 				neighbors.add(new ArrayList<Integer>());
 				vertexID2Index.put(dID, index);
-				index2VertexID.put(index, dID);
+				// index2VertexID.put(index, dID);
 			}
 
 			int sIndex = vertexID2Index.get(sID);
