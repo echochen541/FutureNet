@@ -1,22 +1,15 @@
 /**
- * 实现代码文件
+ * 瀹炵幇浠ｇ爜鏂囦欢
  * 
- * @author XXX
+ * @author echochen
  * @since 2016-3-4
- * @version V1.0
+ * @version V1
  */
 package com.routesearch.route;
 
 import java.util.*;
 
 public final class Route {
-	/**
-	 * 你需要完成功能的入口
-	 * 
-	 * @author echochen
-	 * @since 2016-3-4
-	 * @version V1
-	 */
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
 	private static Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();

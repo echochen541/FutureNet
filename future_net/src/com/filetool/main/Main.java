@@ -5,10 +5,10 @@ import com.filetool.util.LogUtil;
 import com.routesearch.route.Route;
 
 /**
- * 工具入口
+ * 宸ュ叿鍏ュ彛
  * 
- * @author
- * @since 2016-3-1
+ * @author echochen
+ * @since 2016-3-4
  * @version v1.0
  */
 public class Main {
@@ -28,14 +28,14 @@ public class Main {
 
 		LogUtil.printLog("Begin");
 
-		// 读取输入文件
+		// 璇诲彇杈撳叆鏂囦欢
 		String graphContent = FileUtil.read(graphFilePath, null);
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
-		// 功能实现入口
+		// 鍔熻兘瀹炵幇鍏ュ彛
 		String resultStr = Route.searchRoute(graphContent, conditionContent);
 
-		// 写入输出文件
+		// 鍐欏叆杈撳嚭鏂囦欢
 		FileUtil.write(resultFilePath, resultStr, false);
 
 		LogUtil.printLog("End");
