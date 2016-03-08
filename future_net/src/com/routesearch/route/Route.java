@@ -9,8 +9,6 @@ package com.routesearch.route;
 
 import java.util.*;
 
-import com.routesearch.graph.WeightedDirectedGraph;
-
 public final class Route {
 	/**
 	 * 你需要完成功能的入口
@@ -19,19 +17,20 @@ public final class Route {
 	 * @since 2016-3-4
 	 * @version V1
 	 */
+	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	private static Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
+	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
+	private static int[][] edgeIDs = new int[600][600];
+	private static int[][] edgeWeights = new int[600][600];
+	private static int sourceIndex = 0;
+	private static int destinationIndex = 0;
+	private static List<Integer> includingSet = new ArrayList<Integer>();
+	private static boolean[] visited;
+	private static List<Integer> minPath = new ArrayList<Integer>();
+	private static int minCost = Integer.MAX_VALUE;
+
 	public static String searchRoute(String graphContent, String condition) {
-		String resultStr = "hello world!";
-
-		Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
-		Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
-		List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
-		int[][] edgeIDs = new int[600][600];
-		int[][] edgeWeights = new int[600][600];
-
-		int sourceIndex = 0, destinationIndex = 0;
-		/** IncludingSet stores the indices of the vertices in V' */
-		List<Integer> includingSet = new ArrayList<Integer>();
-
+		StringBuffer resultSb = new StringBuffer();
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
 		for (int i = 0; i < lines.length; i++) {
@@ -63,13 +62,11 @@ public final class Route {
 				edgeWeights[sIndex][dIndex] = weight;
 			}
 
-			if (edgeWeights[sIndex][dIndex] != 0
-					&& edgeWeights[sIndex][dIndex] > weight) {
+			if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
 		}
-
 		String[] demand = condition.split(",|\\n");
 		sourceIndex = vertexID2Index.get(Integer.parseInt(demand[0]));
 		destinationIndex = vertexID2Index.get(Integer.parseInt(demand[1]));
@@ -79,40 +76,56 @@ public final class Route {
 			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		WeightedDirectedGraph wdg = new WeightedDirectedGraph(vertexID2Index,
-				neighbors, edgeIDs, edgeWeights);
-
 		int n = neighbors.size();
-		/** print the neighbors of each vertex */
-		for (int i = 0; i < n; i++) {
-			System.out.print("vertex ID is " + index2VertexID.get(i)
-					+ ",vertex index is " + i + ":");
-			System.out.println(neighbors.get(i));
-		}
 
-		/** print the matrix of edges' IDs */
-		System.out.println("matrix of edges' IDs");
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				System.out.print(edgeIDs[i][j] + "  ");
+		/**
+		 * visited[i] == false represents the vertex i hasn't been visited, vice
+		 * versa
+		 */
+		visited = new boolean[n];
+
+		List<Integer> path = new ArrayList<Integer>();
+		searchPath(sourceIndex, destinationIndex, path, 0);
+
+		int pre = sourceIndex;
+		if (minCost != 0) {
+			for (Integer i : minPath) {
+				resultSb.append(edgeIDs[pre][i] + "|");
+				pre = i;
 			}
-			System.out.println();
+			resultSb.append(edgeIDs[pre][destinationIndex]);
+			return resultSb.toString();
 		}
+		return "NA";
+	}
 
-		/** print the matrix of edges' weights */
-		System.out.println("matrix of edges' weights");
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				System.out.print(edgeWeights[i][j] + "  ");
+	private static void searchPath(int s, int d, List<Integer> path, int cost) {
+		visited[s] = true;
+		boolean removed = false;
+		for (Integer i : neighbors.get(s)) {
+			int weight = edgeWeights[s][i];
+			if (weight == 0 || visited[i]) {
+				continue;
 			}
-			System.out.println();
+			if (i == d) {
+				if (includingSet.size() == 0) {
+					cost += weight;
+					if (cost < minCost) {
+						minCost = cost;
+						minPath = new ArrayList<Integer>(path);
+					}
+				}
+				continue;
+			}
+			path.add(i);
+			removed = includingSet.remove(i);
+			searchPath(i, d, path, cost + weight);
+			path.remove(i);
+			visited[i] = false;
+
+			if (removed == true) {
+				includingSet.add(i);
+			}
 		}
-
-		/** print s, d and includingSet */
-		System.out.println(sourceIndex);
-		System.out.println(destinationIndex);
-		System.out.println(includingSet);
-
-		return resultStr;
 	}
 }
