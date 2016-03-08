@@ -26,9 +26,9 @@ public final class Route {
 	private static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
 	private static boolean[] visited;
-	private static List<Integer> path = new ArrayList<Integer>();
-	private static int minCost = 0;
-	
+	private static List<Integer> minPath = new ArrayList<Integer>();
+	private static int minCost = Integer.MAX_VALUE;
+
 	public static String searchRoute(String graphContent, String condition) {
 		String resultStr = "hello world!";
 		String[] lines = graphContent.split("\\n");
@@ -107,11 +107,32 @@ public final class Route {
 		System.out.println(destinationIndex);
 		System.out.println(includingSet);
 
-		/** visited[i] == false represents the vertex i hasn't been visited, vice versa*/
+		/**
+		 * visited[i] == false represents the vertex i hasn't been visited, vice
+		 * versa
+		 */
 		visited = new boolean[n];
-		
-		
-		
+
+		List<Integer> path = new ArrayList<Integer>();
+		int cost = 0;
+		searchPath(sourceIndex, destinationIndex, cost);
+
 		return resultStr;
+	}
+
+	private static void searchPath(int s, int d, int cost) {
+		visited[s] = true;
+		for (Integer i : neighbors.get(s)) {
+			int weight = edgeWeights[s][i];
+			if (weight == 0 || visited[i]) {
+				continue;
+			}
+			if (i == d) {
+				if (includingSet.size() == 0) {
+					cost += weight;
+					minCost = Math.min(cost, minCost); 
+				}
+			}
+		}
 	}
 }
