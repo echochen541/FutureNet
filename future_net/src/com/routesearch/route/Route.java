@@ -88,6 +88,7 @@ public final class Route {
 				pre = i;
 			}
 			resultSb.append(edgeIDs[pre][destinationIndex]);
+			System.out.println(resultSb.toString());
 			return resultSb.toString();
 		}
 		return "NA";
