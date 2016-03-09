@@ -5,41 +5,39 @@ import com.filetool.util.LogUtil;
 import com.routesearch.route.Route;
 
 /**
- * 工具入口
+ * 宸ュ叿鍏ュ彛
  * 
  * @author
  * @since 2016-3-1
  * @version v1.0
  */
-public class Main {
-	public static void main(String[] args) {
-		// if (args.length != 3) {
-		// System.err.println("please input args: graphFilePath,
-		// conditionFilePath, resultFilePath");
-		// return;
-		// }
+public class Main
+{
+    public static void main(String[] args)
+    {
+        if (args.length != 3)
+        {
+            System.err.println("please input args: graphFilePath, conditionFilePath, resultFilePath");
+            return;
+        }
 
-		// String graphFilePath = args[0];
-		// String conditionFilePath = args[1];
-		// String resultFilePath = args[2];
+        String graphFilePath = args[0];
+        String conditionFilePath = args[1];
+        String resultFilePath = args[2];
 
-		String graphFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/topo.csv";
-		String conditionFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/demand.csv";
-		String resultFilePath = "D:/Workspace/Git/future_net/future_net/test/case1/result.csv";
+        LogUtil.printLog("Begin");
 
-		LogUtil.printLog("Begin");
+        // 璇诲彇杈撳叆鏂囦欢
+        String graphContent = FileUtil.read(graphFilePath, null);
+        String conditionContent = FileUtil.read(conditionFilePath, null);
 
-		// 读取输入文件
-		String graphContent = FileUtil.read(graphFilePath, null);
-		String conditionContent = FileUtil.read(conditionFilePath, null);
+        // 鍔熻兘瀹炵幇鍏ュ彛
+        String resultStr = Route.searchRoute(graphContent, conditionContent);
 
-		// 功能实现入口
-		String resultStr = Route.searchRoute(graphContent, conditionContent);
+        // 鍐欏叆杈撳嚭鏂囦欢
+        FileUtil.write(resultFilePath, resultStr, false);
 
-		// 写入输出文件
-		FileUtil.write(resultFilePath, resultStr, false);
-
-		LogUtil.printLog("End");
-	}
+        LogUtil.printLog("End");
+    }
 
 }

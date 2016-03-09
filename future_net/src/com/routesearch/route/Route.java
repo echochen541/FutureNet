@@ -1,5 +1,5 @@
 /**
- * 实现代码文件
+ * 瀹炵幇浠ｇ爜鏂囦欢
  * 
  * @author XXX
  * @since 2016-3-4
@@ -9,9 +9,10 @@ package com.routesearch.route;
 
 import java.util.*;
 
-public final class Route {
+public final class Route
+{
 	/**
-	 * 你需要完成功能的入口
+	 * 浣犻渶瑕佸畬鎴愬姛鑳界殑鍏ュ彛
 	 * 
 	 * @author echochen
 	 * @since 2016-3-4
@@ -94,6 +95,7 @@ public final class Route {
 				pre = i;
 			}
 			resultSb.append(edgeIDs[pre][destinationIndex]);
+			System.out.println(resultSb.toString());
 			return resultSb.toString();
 		}
 		return "NA";
