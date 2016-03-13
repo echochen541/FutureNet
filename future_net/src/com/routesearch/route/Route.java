@@ -72,10 +72,8 @@ public final class Route {
 
 		int n = neighbors.size();
 
-		/**
-		 * visited[i] == false represents the vertex i hasn't been visited, vice
-		 * versa
-		 */
+		// visited[i] == false represents the vertex i hasn't been visited, vice
+		// versa
 		visited = new boolean[n];
 
 		List<Integer> path = new ArrayList<Integer>();
@@ -95,6 +93,8 @@ public final class Route {
 	}
 
 	private static void searchPath(int s, int d, List<Integer> path, int cost) {
+		// System.out.println(path);
+		// System.out.println(includingSet);
 		visited[s] = true;
 		boolean removed = false;
 		for (Integer i : neighbors.get(s)) {
@@ -108,6 +108,9 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
+						System.out.println("minPath is " + minPath);
+						System.out.println("minCost is " + minCost);
+						// 这里优化?
 					}
 				}
 				continue;
