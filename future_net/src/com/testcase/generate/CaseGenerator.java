@@ -10,7 +10,6 @@ public class CaseGenerator {
 
 	public static void generate(int numOfvertices, int maxOutDegree,
 			int maxWeight, int numOfCondition, String directory) {
-		// System.out.println(FILE_PATH);
 		File dir = new File(System.getProperty("user.dir").replaceAll("\\\\",
 				"/")
 				+ "/test/" + directory);  
