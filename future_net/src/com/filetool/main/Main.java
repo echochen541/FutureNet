@@ -25,13 +25,13 @@ public class Main {
 
 		String graphFilePath = System.getProperty("user.dir").replaceAll(
 				"\\\\", "/")
-				+ "/test/case1/topo.csv";
+				+ "/test/case2/topo.csv";
 		String conditionFilePath = System.getProperty("user.dir").replaceAll(
 				"\\\\", "/")
-				+ "/test/case1/demand.csv";
+				+ "/test/case2/demand.csv";
 		String resultFilePath = System.getProperty("user.dir").replaceAll(
 				"\\\\", "/")
-				+ "/test/case1/result.csv";
+				+ "/test/case2/result.csv";
 
 		LogUtil.printLog("Begin");
 
