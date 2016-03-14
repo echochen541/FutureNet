@@ -108,13 +108,18 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						System.out.println("minPath is " + minPath);
-						System.out.println("minCost is " + minCost);
+//						System.out.println("minPath is " + minPath);
+//						System.out.println("minCost is " + minCost);
 						// 这里优化?
 					}
 				}
 				continue;
 			}
+			
+			//pruning
+			if (cost + weight >= minCost)
+				continue;
+			
 			path.add(i);
 			removed = includingSet.remove(i);
 			searchPath(i, d, path, cost + weight);
