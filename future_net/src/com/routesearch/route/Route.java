@@ -115,6 +115,10 @@ public final class Route {
 				}
 				continue;
 			}
+
+			if (cost + weight >= minCost)
+				continue;
+
 			path.add(i);
 			removed = includingSet.remove(i);
 			searchPath(i, d, path, cost + weight);
