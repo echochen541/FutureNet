@@ -24,7 +24,7 @@ public final class Route {
 	// information of search
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
-	private static int minCost = Integer.MAX_VALUE;
+	private static int minCost = 0;
 
 	public static String searchRoute(String graphContent, String condition) {
 		StringBuffer resultSb = new StringBuffer();
@@ -68,16 +68,24 @@ public final class Route {
 		String[] demand = condition.split(",|\\n");
 		sourceIndex = vertexID2Index.get(Integer.parseInt(demand[0]));
 		destinationIndex = vertexID2Index.get(Integer.parseInt(demand[1]));
+
 		String[] V = (demand[2]).split("\\|");
 		for (String v : V) {
 			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
+
+		// sort includingSet
+		if (sourceIndex < destinationIndex)
+			Collections.sort(includingSet);
+		else
+			Collections.sort(includingSet, Collections.reverseOrder());
 
 		// visited[i] represents the vertex i has been visited or not
 		int n = neighbors.size();
 		visited = new boolean[n];
 
 		// Step 3: Search
+		minCost = (n - 1) * 20;
 		List<Integer> path = new ArrayList<Integer>();
 		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
 
@@ -128,7 +136,6 @@ public final class Route {
 			dfsSearchPath(i, d, path, cost + weight);
 			path.remove(i);
 			visited[i] = false;
-
 			if (removed) {
 				includingSet.add(i);
 			}
