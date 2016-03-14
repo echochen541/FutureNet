@@ -125,7 +125,7 @@ public final class Route {
 			path.remove(i);
 			visited[i] = false;
 
-			if (removed == true) {
+			if (removed) {
 				includingSet.add(i);
 			}
 		}
