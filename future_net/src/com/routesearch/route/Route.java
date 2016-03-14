@@ -56,7 +56,8 @@ public final class Route {
 				edgeWeights[sIndex][dIndex] = weight;
 			}
 
-			if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
+			if (edgeWeights[sIndex][dIndex] != 0
+					&& edgeWeights[sIndex][dIndex] > weight) {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
@@ -80,7 +81,7 @@ public final class Route {
 		searchPath(sourceIndex, destinationIndex, path, 0);
 
 		int pre = sourceIndex;
-		if (minCost != 0) {
+		if (minPath.size() != 0) {
 			for (Integer i : minPath) {
 				resultSb.append(edgeIDs[pre][i] + "|");
 				pre = i;
@@ -89,6 +90,7 @@ public final class Route {
 			System.out.println(resultSb.toString());
 			return resultSb.toString();
 		}
+		System.out.println("NA");
 		return "NA";
 	}
 
@@ -108,18 +110,18 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-//						System.out.println("minPath is " + minPath);
-//						System.out.println("minCost is " + minCost);
+						// System.out.println("minPath is " + minPath);
+						// System.out.println("minCost is " + minCost);
 						// 这里优化?
 					}
 				}
 				continue;
 			}
-			
-			//pruning
+
+			// pruning
 			if (cost + weight >= minCost)
 				continue;
-			
+
 			path.add(i);
 			removed = includingSet.remove(i);
 			searchPath(i, d, path, cost + weight);
