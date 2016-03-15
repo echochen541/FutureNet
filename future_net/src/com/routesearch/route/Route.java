@@ -120,8 +120,8 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						// System.out.println("minPath is " + minPath);
-						// System.out.println("minCost is " + minCost);
+						System.out.println("minPath is " + minPath);
+						System.out.println("minCost is " + minCost);
 						// optimize path
 					}
 				}
