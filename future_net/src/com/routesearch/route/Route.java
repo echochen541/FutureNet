@@ -105,7 +105,9 @@ public final class Route {
 	private static void dfsSearchPath(int s, int d, List<Integer> path, int cost) {
 		visited[s] = true;
 		boolean removed = false;
-		for (Integer i : neighbors.get(s)) {
+		List<Integer> neighbor = neighbors.get(s);
+
+		for (Integer i : neighbor) {
 			int weight = edgeWeights[s][i];
 			if (weight == 0 || visited[i]) {
 				continue;
