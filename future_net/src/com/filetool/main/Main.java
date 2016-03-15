@@ -23,15 +23,9 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = System.getProperty("user.dir").replaceAll(
-				"\\\\", "/")
-				+ "/test/case2/topo.csv";
-		String conditionFilePath = System.getProperty("user.dir").replaceAll(
-				"\\\\", "/")
-				+ "/test/case2/demand.csv";
-		String resultFilePath = System.getProperty("user.dir").replaceAll(
-				"\\\\", "/")
-				+ "/test/case2/result.csv";
+		String graphFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/topo.csv";
+		String conditionFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/demand.csv";
+		String resultFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/result.csv";
 
 		LogUtil.printLog("Begin");
 
