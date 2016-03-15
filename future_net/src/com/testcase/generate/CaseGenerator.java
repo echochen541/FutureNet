@@ -40,6 +40,7 @@ public class CaseGenerator {
 
 		int start = (int) (Math.random() * numOfvertices);
 		int end = (int) (Math.random() * numOfvertices);
+		
 		String condition = "";
 		List<Integer> l = new ArrayList<Integer>();
 		int n;

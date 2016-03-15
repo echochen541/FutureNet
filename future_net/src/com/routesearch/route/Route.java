@@ -24,7 +24,7 @@ public final class Route {
 	// information of search
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
-	private static int minCost = 0;
+	private static int minCost = Integer.MAX_VALUE;
 
 	public static String searchRoute(String graphContent, String condition) {
 		StringBuffer resultSb = new StringBuffer();
@@ -75,20 +75,17 @@ public final class Route {
 			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		// sort includingSet
-		if (sourceIndex < destinationIndex)
-			Collections.sort(includingSet);
-		else
-			Collections.sort(includingSet, Collections.reverseOrder());
-
 		// visited[i] represents the vertex i has been visited or not
 		int n = neighbors.size();
 		visited = new boolean[n];
 
 		// Step 3: Search
-		minCost = (n - 1) * 20;
 		List<Integer> path = new ArrayList<Integer>();
+		System.out.println(sourceIndex + "," + includingSet + ","
+				+ destinationIndex);
 		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
+		System.out
+				.println(sourceIndex + "," + minPath + "," + destinationIndex);
 
 		// Step 4: form result
 		int pre = sourceIndex;
@@ -113,6 +110,11 @@ public final class Route {
 			if (weight == 0 || visited[i]) {
 				continue;
 			}
+			
+			// pruning
+			if (cost + weight >= minCost)
+				continue;
+			
 			if (i == d) {
 				// System.out.println(path);
 				if (includingSet.size() == 0) {
@@ -120,17 +122,13 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						System.out.println("minPath is " + minPath);
-						System.out.println("minCost is " + minCost);
+						// System.out.println("minPath is " + minPath);
+						// System.out.println("minCost is " + minCost);
 						// optimize path
 					}
 				}
 				continue;
 			}
-
-			// pruning
-			if (cost + weight >= minCost)
-				continue;
 
 			path.add(i);
 			removed = includingSet.remove(i);
