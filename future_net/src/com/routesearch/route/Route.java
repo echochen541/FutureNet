@@ -9,6 +9,8 @@ package com.routesearch.route;
 
 import java.util.*;
 
+import com.filetool.util.FileUtil;
+
 public final class Route {
 	// attributes of graph
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
@@ -26,7 +28,7 @@ public final class Route {
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
 
-	public static String searchRoute(String graphContent, String condition) {
+	public static String searchRoute(String graphContent, String condition, String resultFilePath) {
 		StringBuffer resultSb = new StringBuffer();
 
 		// Step 1: Construct the weighted directed graph
@@ -58,8 +60,7 @@ public final class Route {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
-			if (edgeWeights[sIndex][dIndex] != 0
-					&& edgeWeights[sIndex][dIndex] > weight) {
+			if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
 				edgeIDs[sIndex][dIndex] = edgeID;
 				edgeWeights[sIndex][dIndex] = weight;
 			}
@@ -80,12 +81,11 @@ public final class Route {
 		visited = new boolean[n];
 
 		// Step 3: Search
+		FileUtil.write(resultFilePath, "NA", false);
 		List<Integer> path = new ArrayList<Integer>();
-		System.out.println(sourceIndex + "," + includingSet + ","
-				+ destinationIndex);
+		System.out.println(sourceIndex + "," + includingSet + "," + destinationIndex);
 		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
-		System.out
-				.println(sourceIndex + "," + minPath + "," + destinationIndex);
+		System.out.println(sourceIndex + "," + minPath + "," + destinationIndex);
 
 		// Step 4: form result
 		int pre = sourceIndex;
@@ -110,11 +110,11 @@ public final class Route {
 			if (weight == 0 || visited[i]) {
 				continue;
 			}
-			
+
 			// pruning
 			if (cost + weight >= minCost)
 				continue;
-			
+
 			if (i == d) {
 				// System.out.println(path);
 				if (includingSet.size() == 0) {
