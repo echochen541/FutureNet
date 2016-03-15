@@ -10,26 +10,26 @@ package com.routesearch.route;
 import java.util.*;
 
 public final class Route {
-	//attributes of graph
+	// attributes of graph
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	private static int[][] edgeIDs = new int[600][600];
 	private static int[][] edgeWeights = new int[600][600];
-	
-	//conditions
+
+	// conditions
 	private static int sourceIndex = 0;
 	private static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
-	
-	//information of search
+
+	// information of search
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
 
 	public static String searchRoute(String graphContent, String condition) {
 		StringBuffer resultSb = new StringBuffer();
-		
-		//Step 1: Construct the weighted directed graph
+
+		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
 		for (int i = 0; i < lines.length; i++) {
@@ -52,7 +52,7 @@ public final class Route {
 
 			int sIndex = vertexID2Index.get(sID);
 			int dIndex = vertexID2Index.get(dID);
-			
+
 			if (edgeWeights[sIndex][dIndex] == 0) {
 				neighbors.get(sIndex).add(dIndex);
 				edgeIDs[sIndex][dIndex] = edgeID;
@@ -64,8 +64,8 @@ public final class Route {
 				edgeWeights[sIndex][dIndex] = weight;
 			}
 		}
-		
-		//Step 2: Extract s, d and includingSet
+
+		// Step 2: Extract s, d and includingSet
 		String[] demand = condition.split(",|\\n");
 		sourceIndex = vertexID2Index.get(Integer.parseInt(demand[0]));
 		destinationIndex = vertexID2Index.get(Integer.parseInt(demand[1]));
@@ -77,12 +77,12 @@ public final class Route {
 		// visited[i] represents the vertex i has been visited or not
 		int n = neighbors.size();
 		visited = new boolean[n];
-		
-		//Step 3: Search
+
+		// Step 3: Search
 		List<Integer> path = new ArrayList<Integer>();
 		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
 
-		//Step 4: form result
+		// Step 4: form result
 		int pre = sourceIndex;
 		if (minPath.size() != 0) {
 			for (Integer i : minPath) {
@@ -112,8 +112,8 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						System.out.println("minPath is " + minPath);
-						System.out.println("minCost is " + minCost);
+						// System.out.println("minPath is " + minPath);
+						// System.out.println("minCost is " + minCost);
 						// optimize path
 					}
 				}
