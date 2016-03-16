@@ -86,6 +86,7 @@ public final class Route {
 		System.out.println(sourceIndex + "," + includingSet + "," + destinationIndex);
 		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
 		System.out.println(sourceIndex + "," + minPath + "," + destinationIndex);
+		System.out.println(minCost);
 
 		// Step 4: form result
 		int pre = sourceIndex;
@@ -124,8 +125,8 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						// System.out.println("minPath is " + minPath);
-						// System.out.println("minCost is " + minCost);
+						 System.out.println("minPath is " + minPath);
+						 System.out.println("minCost is " + minCost);
 						// optimize path
 					}
 				}
