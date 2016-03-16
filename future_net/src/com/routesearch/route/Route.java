@@ -22,6 +22,7 @@ public final class Route {
 	private static int sourceIndex = 0;
 	private static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
+	private static List<Integer> includingSet2 = new ArrayList<Integer>();
 
 	// information of search
 	private static boolean[] visited;
@@ -74,6 +75,7 @@ public final class Route {
 		String[] V = (demand[2]).split("\\|");
 		for (String v : V) {
 			includingSet.add(vertexID2Index.get(Integer.parseInt(v)));
+			includingSet2.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
 		// visited[i] represents the vertex i has been visited or not
@@ -125,8 +127,8 @@ public final class Route {
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						 System.out.println("minPath is " + minPath);
-						 System.out.println("minCost is " + minCost);
+						System.out.println("minPath is " + minPath);
+						System.out.println("minCost is " + minCost);
 						// optimize path
 					}
 				}
@@ -157,19 +159,17 @@ public final class Route {
 		// opportunity, respectively.
 		int i = 0;
 		int presentV = -1, prePresentV = -1;
-		for (Iterator<Integer> it = path.iterator();
-
-		it.hasNext();) {
+		for (Iterator<Integer> it = path.iterator(); it.hasNext();) {
 			presentV = it.next();
-			if (pre == -1 && includingSet.contains(presentV)) {
+			if (pre == -1 && includingSet2.contains(presentV)) {
 				// determine the start vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet.contains(presentV) && preIndex == (i - 1)) {
-				// change the start point to thisvertex
+			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex == (i - 1)) {
+				// change the start point to this vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet.contains(presentV) && preIndex != (i - 1)) {
+			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex != (i - 1)) {
 				// determine the end vertex
 				post = presentV;
 				weight += edgeWeights[prePresentV][presentV];
@@ -179,7 +179,9 @@ public final class Route {
 
 			if (pre != -1 && post != -1) {
 				// Optimize the sub-path
+				System.out.println(pre + "," + post + "," + weight);
 				List<Integer> sub = optimizeSubPath(pre, post, weight);
+				System.out.println(sub);
 				if (sub != null) {
 					optimizedSubPaths.add(sub);
 					prevs.add(pre);
@@ -196,6 +198,10 @@ public final class Route {
 			i++;
 		}
 
+		for (List<Integer> subPath : optimizedSubPaths) {
+			System.out.println(subPath);
+		}
+
 		// Substitute with the optimized sub path.
 		int size = optimizedSubPaths.size();
 		for (int j = 0; j < size; j++) {
@@ -206,7 +212,8 @@ public final class Route {
 
 			// Remove old sub path.
 			while (tmp != end) {
-				path.remove(startIndex);
+				path.remove(startIndex++);
+				tmp = path.get(startIndex);
 			}
 
 			// Add new sub path.
@@ -246,7 +253,7 @@ public final class Route {
 			for (Iterator<Integer> iterator = neighb.iterator(); iterator.hasNext();) {
 				int tmpV = iterator.next();
 				int tmpDis = prevDistance + edgeWeights[prev][tmpV];
-				if (tmpDis >= maxWeight) {
+				if (tmpDis >= maxWeight || tmpDis >= distance[tmpV]) {
 					continue;
 				}
 				if (tmpV == end) {
@@ -266,9 +273,7 @@ public final class Route {
 
 			// Find the vertex in the list that has the minimum distance.
 			min = Integer.MAX_VALUE;
-			for (Iterator<Integer> it =
-
-					aboutToVisit.iterator(); it.hasNext();) {
+			for (Iterator<Integer> it = aboutToVisit.iterator(); it.hasNext();) {
 				int tmp = it.next();
 				if (distance[tmp] < min) {
 					minVertex = tmp;
@@ -282,7 +287,7 @@ public final class Route {
 			return null;
 		}
 		do {
-			path.add(prev);
+			path.add(0, prev);
 			prev = prevVertex[prev];
 		} while (prev != start);
 
