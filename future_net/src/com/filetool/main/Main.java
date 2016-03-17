@@ -23,9 +23,12 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/topo.csv";
-		String conditionFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/demand.csv";
-		String resultFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case2/result.csv";
+		String graphFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/")
+				+ "/test/case2/topo.csv";
+		String conditionFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/")
+				+ "/test/case2/demand.csv";
+		String resultFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/")
+				+ "/test/case2/result.csv";
 
 		LogUtil.printLog("Begin");
 
@@ -34,7 +37,7 @@ public class Main {
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		// 功能实现入口
-		String resultStr = Route.searchRoute(graphContent, conditionContent);
+		String resultStr = Route.searchRoute(graphContent, conditionContent, resultFilePath);
 
 		// 写入输出文件
 		FileUtil.write(resultFilePath, resultStr, false);

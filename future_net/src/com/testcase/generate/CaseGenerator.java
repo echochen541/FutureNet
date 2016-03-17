@@ -8,31 +8,30 @@ import com.filetool.util.FileUtil;
 
 public class CaseGenerator {
 
-	public static void generate(int numOfvertices, int maxOutDegree,
-			int maxWeight, int numOfCondition, String directory) {
-		File dir = new File(System.getProperty("user.dir").replaceAll("\\\\",
-				"/")
-				+ "/test/" + directory);  
+	public static void generate(int numOfvertices, int minOutDegree, int numOfCondition, String directory) {
+		File dir = new File(System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/" + directory);
 		dir.mkdir();
-		String FILE_PATH = System.getProperty("user.dir").replaceAll("\\\\",
-				"/")
-				+ "/test/" + directory + "/";
-		
+		String FILE_PATH = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/" + directory + "/";
+
 		int edgeIndex = 0, outDegree = 0, weight = 0, dst = 0;
 		for (int i = 0; i < numOfvertices; i++) {
-			outDegree = (int) (Math.random() * (maxOutDegree + 1));
+			outDegree = minOutDegree + (int) (Math.random() * (9 - minOutDegree));
 			for (int j = 0; j < outDegree; j++) {
-				weight = (int) (Math.random() * maxWeight + 1);
-				dst = (int) (Math.random() * numOfvertices + 1);
+				weight = (int) (Math.random() * 20 + 1);
+				dst = (int) (Math.random() * numOfvertices);
+
 				if (dst == i) {
-					dst++;
+					if (i == 0)
+						dst++;
+					if (i == 599)
+						dst--;
 				}
+
 				if (i == 0 && j == 0) {
-					FileUtil.write(FILE_PATH + "topo.csv", edgeIndex + "," + i
-							+ "," + dst + "," + weight + "\n", false);
+					FileUtil.write(FILE_PATH + "topo.csv", edgeIndex + "," + i + "," + dst + "," + weight + "\n",
+							false);
 				} else {
-					FileUtil.write(FILE_PATH + "topo.csv", edgeIndex + "," + i
-							+ "," + dst + "," + weight + "\n", true);
+					FileUtil.write(FILE_PATH + "topo.csv", edgeIndex + "," + i + "," + dst + "," + weight + "\n", true);
 				}
 				edgeIndex++;
 			}
@@ -40,7 +39,7 @@ public class CaseGenerator {
 
 		int start = (int) (Math.random() * numOfvertices);
 		int end = (int) (Math.random() * numOfvertices);
-		
+
 		String condition = "";
 		List<Integer> l = new ArrayList<Integer>();
 		int n;
@@ -57,7 +56,6 @@ public class CaseGenerator {
 				condition = condition + "|" + n;
 			}
 		}
-		FileUtil.write(FILE_PATH + "demand.csv", start + "," + end + ","
-				+ condition + "\n", false);
+		FileUtil.write(FILE_PATH + "demand.csv", start + "," + end + "," + condition + "\n", false);
 	}
 }
