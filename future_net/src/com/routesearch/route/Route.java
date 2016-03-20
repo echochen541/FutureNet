@@ -9,6 +9,8 @@ package com.routesearch.route;
 
 import java.util.*;
 
+import org.gnu.glpk.*;
+
 import com.filetool.util.FileUtil;
 
 public final class Route {
@@ -17,6 +19,7 @@ public final class Route {
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	private static int[][] edgeIDs = new int[600][600];
 	private static int[][] edgeWeights = new int[600][600];
+	private static int numOfEdges;
 
 	// conditions
 	private static int sourceIndex = 0;
@@ -28,9 +31,12 @@ public final class Route {
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
+	private static String resultFilePath;
 
-	public static String searchRoute(String graphContent, String condition,
-			String resultFilePath) {
+	// path of data
+	private static String dataFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/data.dat";
+
+	public static String searchRoute(String graphContent, String condition, String filePath) {
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -41,29 +47,38 @@ public final class Route {
 			int dID = Integer.parseInt(line[2]);
 			int weight = Integer.parseInt(line[3]);
 
-			if (!vertexID2Index.containsKey(sID)) {
-				index++;
-				neighbors.add(new ArrayList<Integer>());
-				vertexID2Index.put(sID, index);
-			}
-			if (!vertexID2Index.containsKey(dID)) {
-				index++;
-				neighbors.add(new ArrayList<Integer>());
-				vertexID2Index.put(dID, index);
-			}
+			// remove self-loop
+			if (sID == dID) {
+				if (!vertexID2Index.containsKey(sID)) {
+					index++;
+					neighbors.add(new ArrayList<Integer>());
+					vertexID2Index.put(sID, index);
+				}
+			} else {
+				if (!vertexID2Index.containsKey(sID)) {
+					index++;
+					neighbors.add(new ArrayList<Integer>());
+					vertexID2Index.put(sID, index);
+				}
+				if (!vertexID2Index.containsKey(dID)) {
+					index++;
+					neighbors.add(new ArrayList<Integer>());
+					vertexID2Index.put(dID, index);
+				}
 
-			int sIndex = vertexID2Index.get(sID);
-			int dIndex = vertexID2Index.get(dID);
+				int sIndex = vertexID2Index.get(sID);
+				int dIndex = vertexID2Index.get(dID);
 
-			if (edgeWeights[sIndex][dIndex] == 0) {
-				neighbors.get(sIndex).add(dIndex);
-				edgeIDs[sIndex][dIndex] = edgeID;
-				edgeWeights[sIndex][dIndex] = weight;
-			}
-			if (edgeWeights[sIndex][dIndex] != 0
-					&& edgeWeights[sIndex][dIndex] > weight) {
-				edgeIDs[sIndex][dIndex] = edgeID;
-				edgeWeights[sIndex][dIndex] = weight;
+				if (edgeWeights[sIndex][dIndex] == 0) {
+					neighbors.get(sIndex).add(dIndex);
+					edgeIDs[sIndex][dIndex] = edgeID;
+					edgeWeights[sIndex][dIndex] = weight;
+					numOfEdges++;
+				}
+				if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
+					edgeIDs[sIndex][dIndex] = edgeID;
+					edgeWeights[sIndex][dIndex] = weight;
+				}
 			}
 		}
 
@@ -82,23 +97,172 @@ public final class Route {
 		int n = neighbors.size();
 		visited = new boolean[n];
 
-		// Step 3: Search
+		// write data.bat
+		String text = "data;\n\n";
+		FileUtil.write(dataFilePath, text, false);
+		// System.out.print(text);
 
+		text = "param n := " + n + ";\n";
+		FileUtil.write(dataFilePath, text, true);
+		// System.out.print(text);
+
+		text = "param orig := " + sourceIndex + ";\n";
+		FileUtil.write(dataFilePath, text, true);
+		// System.out.print(text);
+
+		text = "param dest := " + destinationIndex + ";\n";
+		FileUtil.write(dataFilePath, text, true);
+		// System.out.print(text);
+
+		text = "set P :=";
+		for (int v : includingSet) {
+			text += (" " + v);
+		}
+		text += ";\n";
+		FileUtil.write(dataFilePath, text, true);
+		// System.out.print(text);
+
+		text = "param : A : c :=\n";
+		FileUtil.write(dataFilePath, text, true);
+		// System.out.print(text);
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (edgeWeights[i][j] > 0) {
+					text = i + " " + j + " " + edgeWeights[i][j] + "\n";
+					FileUtil.write(dataFilePath, text, true);
+					// System.out.print(text);
+				}
+			}
+		}
+
+		text = ";\n\nend;\n";
+		FileUtil.write(dataFilePath, text, true);
+
+		// System.out.print(text);
+
+		// Step3: call glpk to solve
+		resultFilePath = filePath;
 		FileUtil.write(resultFilePath, "NA", false);
-		List<Integer> path = new ArrayList<Integer>();
+		return mipSolver();
+
+		// System.exit(0);
+
+		// Step 3: Search
+		// List<Integer> path = new ArrayList<Integer>();
 		// System.out.println(sourceIndex + "," + includingSet + "," +
 		// destinationIndex);
-		dfsSearchPath(sourceIndex, destinationIndex, path, 0);
+		// dfsSearchPath(sourceIndex, destinationIndex, path, 0);
 		// System.out.println(sourceIndex + "," + minPath + "," +
 		// destinationIndex);
 		// System.out.println(minCost);
 
 		// Step 4: form result
-		if (minPath.size() != 0) {
-			return formResult();
+		// if (minPath.size() != 0) {
+		// System.out.print(minCost + ":");
+		// return formResult();
+		// }
+		// System.out.println("NA");
+		// return "NA";
+	}
+
+	private static String mipSolver() {
+		String result = "NA";
+		glp_prob lp;
+		glp_tran tran;
+		glp_iocp iocp;
+
+		String fname = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/ktsp.mod";
+		String fdata = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/data.dat";
+		int skip = 0;
+		int ret;
+
+		try {
+			// create problem
+			lp = GLPK.glp_create_prob();
+
+			// allocate workspace
+			tran = GLPK.glp_mpl_alloc_wksp();
+
+			// read model
+			ret = GLPK.glp_mpl_read_model(tran, fname, skip);
+
+			// read data
+			ret = GLPK.glp_mpl_read_data(tran, fdata);
+
+			// generate model
+			ret = GLPK.glp_mpl_generate(tran, null);
+
+			// build model
+			GLPK.glp_mpl_build_prob(tran, lp);
+
+			// solve model
+			iocp = new glp_iocp();
+			GLPK.glp_init_iocp(iocp);
+			iocp.setPresolve(GLPKConstants.GLP_ON);
+			ret = GLPK.glp_intopt(lp, iocp);
+
+			// retrieve result
+			if (ret == 0) {
+				// GLPK.glp_mpl_postsolve(tran, lp, GLPKConstants.GLP_MIP);
+				result = write_mip_solution(lp, numOfEdges);
+				// System.out.println(result);
+			}
+
+			// free memory
+			GLPK.glp_mpl_free_wksp(tran);
+			GLPK.glp_delete_prob(lp);
+
+		} catch (org.gnu.glpk.GlpkException e) {
+			System.err.println("An error inside the GLPK library occured.");
+			System.err.println(e.getMessage());
+		} catch (RuntimeException e) {
+			System.err.println(e.getMessage());
 		}
-		System.out.println("NA");
-		return "NA";
+		return result;
+	}
+
+	private static String write_mip_solution(glp_prob lp, int numOfEdges) {
+		int i;
+		int n;
+		String name;
+		double val;
+		double cost;
+		List<CostV> cvs = new ArrayList<CostV>();
+
+		name = GLPK.glp_get_obj_name(lp);
+		val = GLPK.glp_mip_obj_val(lp);
+		System.out.print(name);
+		System.out.print(" = ");
+		System.out.println(val);
+		cost = val;
+		n = GLPK.glp_get_num_cols(lp);
+		for (i = numOfEdges + 1; i <= n; i++) {
+			name = GLPK.glp_get_col_name(lp, i);
+			val = GLPK.glp_mip_col_val(lp, i);
+			// System.out.println(name + "=" + val);
+			if (val > 0 && val <= cost + 1) {
+				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
+				cvs.add(new CostV(v, val));
+			}
+		}
+
+		Collections.sort(cvs);
+		for (CostV cv : cvs) {
+			System.out.println(cv.v + "," + cv.cost);
+		}
+
+		StringBuffer resultSb = new StringBuffer();
+		int pre = sourceIndex;
+		for (CostV cv : cvs) {
+			if (edgeWeights[pre][cv.v] > 0) {
+				resultSb.append(edgeIDs[pre][cv.v] + "|");
+			}
+			pre = cv.v;
+		}
+
+		System.out.println(resultSb.deleteCharAt(resultSb.length() - 1).toString());
+		return resultSb.toString();
 	}
 
 	private static void dfsSearchPath(int s, int d, List<Integer> path, int cost) {
@@ -125,6 +289,7 @@ public final class Route {
 						minPath = new ArrayList<Integer>(path);
 						// System.out.println("minPath is " + minPath);
 						// System.out.println("minCost is " + minCost);
+						// FileUtil.write(resultFilePath, formResult(), false);
 						// optimize path
 					}
 				}
@@ -150,15 +315,13 @@ public final class Route {
 			pre = i;
 		}
 		resultSb.append(edgeIDs[pre][destinationIndex]);
-		// System.out.println(resultSb.toString());
+		System.out.println(resultSb.toString());
 		return resultSb.toString();
 	}
 
 	private static void optimizePath(List<Integer> path) {
 		int pre = -1, post = -1, preIndex = -1, weight = 0;
-		List<List<Integer>> optimizedSubPaths = new
-
-		LinkedList<List<Integer>>();
+		List<List<Integer>> optimizedSubPaths = new LinkedList<List<Integer>>();
 		List<Integer> prevs = new ArrayList<Integer>();
 		List<Integer> posts = new ArrayList<Integer>();
 
@@ -173,13 +336,11 @@ public final class Route {
 				// determine the start vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet2.contains(presentV)
-					&& preIndex == (i - 1)) {
+			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex == (i - 1)) {
 				// change the start point to this vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet2.contains(presentV)
-					&& preIndex != (i - 1)) {
+			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex != (i - 1)) {
 				// determine the end vertex
 				post = presentV;
 				weight += edgeWeights[prePresentV][presentV];
@@ -236,8 +397,7 @@ public final class Route {
 	/**
 	 * Used by optimizePath method. Based on Dijkstra algorithm.
 	 */
-	private static List<Integer> optimizeSubPath(int start, int end,
-			int maxWeight) {
+	private static List<Integer> optimizeSubPath(int start, int end, int maxWeight) {
 		int prevVertex[] = new int[600];
 		int distance[] = new int[600];
 		boolean[] isVisited = new boolean[600];
@@ -261,8 +421,7 @@ public final class Route {
 			List<Integer> neighb = neighbors.get(prev);
 
 			// Expand the neighbors to the about to visit list.
-			for (Iterator<Integer> iterator = neighb.iterator(); iterator
-					.hasNext();) {
+			for (Iterator<Integer> iterator = neighb.iterator(); iterator.hasNext();) {
 				int tmpV = iterator.next();
 				int tmpDis = prevDistance + edgeWeights[prev][tmpV];
 				if (tmpDis >= maxWeight || tmpDis >= distance[tmpV]) {
@@ -304,5 +463,26 @@ public final class Route {
 		} while (prev != start);
 
 		return path;
+	}
+}
+
+/** d represents the cost from source to v */
+class CostV implements Comparable<CostV> {
+	int v;
+	double cost;
+
+	public CostV(int v, double cost) {
+		this.v = v;
+		this.cost = cost;
+	}
+
+	@Override
+	public int compareTo(CostV cv) {
+		if (this.cost < cv.cost)
+			return -1;
+		else if (this.cost == cv.cost)
+			return 0;
+		else
+			return (int) (this.cost - cv.cost);
 	}
 }

@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: lib/glpk-java.jar
+Main-Class: com.filetool.main.Main
