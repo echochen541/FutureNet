@@ -13,26 +13,15 @@ import com.routesearch.route.Route;
  */
 public class Main {
 	public static void main(String[] args) {
-		if (args.length != 3) {
-			System.err.println("please input args: graphFilePath,conditionFilePath, resultFilePath");
-			return;
-		}
 
-		String graphFilePath = args[0];
-		String conditionFilePath = args[1];
-		String resultFilePath = args[2];
+		// System.loadLibrary("glpk_4_58");
+		// System.loadLibrary("glpk_4_58_java");
 
-		// String graphFilePath =
-		// System.getProperty("user.dir").replaceAll("\\\\", "/") +
-		// "/test/case3/topo.csv";
-		// String conditionFilePath =
-		// System.getProperty("user.dir").replaceAll("\\\\", "/") +
-		// "/test/case3/demand.csv";
-		// String resultFilePath =
-		// System.getProperty("user.dir").replaceAll("\\\\", "/") +
-		// "/test/case3/result.csv";
+		String graphFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/topo.csv";
+		String conditionFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/demand.csv";
+		String resultFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/result.csv";
 
-		// LogUtil.printLog("Begin");
+		LogUtil.printLog("Begin");
 
 		// 读取输入文件
 		String graphContent = FileUtil.read(graphFilePath, null);
@@ -44,7 +33,7 @@ public class Main {
 		// 写入输出文件
 		FileUtil.write(resultFilePath, resultStr, false);
 
-		// LogUtil.printLog("End");
+		LogUtil.printLog("End");
 	}
 
 }

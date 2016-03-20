@@ -19,7 +19,7 @@ public final class Route {
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	private static int[][] edgeIDs = new int[600][600];
 	private static int[][] edgeWeights = new int[600][600];
-	private static int numOfEdges;
+	private static int numOfEdges = 0;
 
 	// conditions
 	private static int sourceIndex = 0;
@@ -205,7 +205,7 @@ public final class Route {
 			// retrieve result
 			if (ret == 0) {
 				// GLPK.glp_mpl_postsolve(tran, lp, GLPKConstants.GLP_MIP);
-				result = write_mip_solution(lp, numOfEdges);
+				result = write_mip_solution(lp);
 				// System.out.println(result);
 			}
 
@@ -222,7 +222,7 @@ public final class Route {
 		return result;
 	}
 
-	private static String write_mip_solution(glp_prob lp, int numOfEdges) {
+	private static String write_mip_solution(glp_prob lp) {
 		int i;
 		int n;
 		String name;
@@ -248,10 +248,6 @@ public final class Route {
 		}
 
 		Collections.sort(cvs);
-		for (CostV cv : cvs) {
-			System.out.println(cv.v + "," + cv.cost);
-		}
-
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
 		for (CostV cv : cvs) {
