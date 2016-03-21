@@ -1,5 +1,8 @@
 package com.filetool.main;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+
 import com.filetool.util.FileUtil;
 import com.filetool.util.LogUtil;
 import com.routesearch.route.Route;
@@ -12,14 +15,30 @@ import com.routesearch.route.Route;
  * @version v1.0
  */
 public class Main {
+	static {
+		try {
+			addDir("link");
+			// System.out.println(System.getProperty("java.library.path"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) {
+		// if (args.length != 3) {
+		// System.err.println("please input args:
+		// graphFilePath,conditionFilePath, resultFilePath");
+		// return;
+		// }
 
-		// System.loadLibrary("glpk_4_58");
-		// System.loadLibrary("glpk_4_58_java");
+		// String graphFilePath = args[0];
+		// String conditionFilePath = args[1];
+		// String resultFilePath = args[2];
 
-		String graphFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/topo.csv";
-		String conditionFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/demand.csv";
-		String resultFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/case3/result.csv";
+		String graphFilePath = "test/case3/topo.csv";
+		String conditionFilePath = "test/case3/demand.csv";
+		String resultFilePath = "test/case3/result.csv";
 
 		LogUtil.printLog("Begin");
 
@@ -36,4 +55,27 @@ public class Main {
 		LogUtil.printLog("End");
 	}
 
+	public static void addDir(String s) throws IOException {
+		try {
+			Field field = ClassLoader.class.getDeclaredField("usr_paths");
+			field.setAccessible(true);
+			String[] paths = (String[]) field.get(null);
+
+			for (int i = 0; i < paths.length; i++) {
+				// System.out.println(paths[i]);
+				if (s.equals(paths[i])) {
+					return;
+				}
+			}
+			String[] tmp = new String[paths.length + 1];
+			System.arraycopy(paths, 0, tmp, 0, paths.length);
+			tmp[paths.length] = s;
+			// System.out.println(s);
+			field.set(null, tmp);
+		} catch (IllegalAccessException e) {
+			throw new IOException("Failed to get permissions to set library path");
+		} catch (NoSuchFieldException e) {
+			throw new IOException("Failed to get field handle to set library path");
+		}
+	}
 }

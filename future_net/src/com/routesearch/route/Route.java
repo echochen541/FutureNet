@@ -34,7 +34,7 @@ public final class Route {
 	private static String resultFilePath;
 
 	// path of data
-	private static String dataFilePath = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/data.dat";
+	private static String dataFilePath = "mod/data.dat";
 
 	public static String searchRoute(String graphContent, String condition, String filePath) {
 		// Step 1: Construct the weighted directed graph
@@ -172,8 +172,8 @@ public final class Route {
 		glp_tran tran;
 		glp_iocp iocp;
 
-		String fname = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/ktsp.mod";
-		String fdata = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/mod/data.dat";
+		String fname = "mod/ktsp.mod";
+		String fdata = dataFilePath;
 		int skip = 0;
 		int ret;
 
@@ -199,7 +199,7 @@ public final class Route {
 			// solve model
 			iocp = new glp_iocp();
 			GLPK.glp_init_iocp(iocp);
-			iocp.setPresolve(GLPKConstants.GLP_ON);
+			iocp.setPresolve(1);
 			ret = GLPK.glp_intopt(lp, iocp);
 
 			// retrieve result
