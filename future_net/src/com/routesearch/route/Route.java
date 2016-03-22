@@ -13,6 +13,27 @@ import org.gnu.glpk.*;
 
 import com.filetool.util.FileUtil;
 
+/** cost represents the cost from source to v */
+class CostV implements Comparable<CostV> {
+	int v;
+	double cost;
+
+	public CostV(int v, double cost) {
+		this.v = v;
+		this.cost = cost;
+	}
+
+	@Override
+	public int compareTo(CostV cv) {
+		if (this.cost < cv.cost)
+			return -1;
+		else if (this.cost == cv.cost)
+			return 0;
+		else
+			return (int) (this.cost - cv.cost);
+	}
+}
+
 public final class Route {
 	// attributes of graph
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
@@ -125,7 +146,7 @@ public final class Route {
 		// if graph is large call glpk solver
 		fname = "mod/ktsp.mod";
 		fdata = "mod/data.dat";
-		
+
 		// write data.bat
 		String text = "data;\n\n";
 		FileUtil.write(fdata, text, false);
@@ -252,7 +273,7 @@ public final class Route {
 		return resultSb.toString();
 	}
 
-	//dfs search
+	// dfs search
 	private static void dfsSearchPath(int s, int d, List<Integer> path, int cost) {
 		visited[s] = true;
 		boolean removed = false;
@@ -291,7 +312,7 @@ public final class Route {
 		}
 	}
 
-	//form result
+	// form result
 	private static String formResult() {
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
@@ -453,26 +474,5 @@ public final class Route {
 		} while (prev != start);
 
 		return path;
-	}
-}
-
-/** d represents the cost from source to v */
-class CostV implements Comparable<CostV> {
-	int v;
-	double cost;
-
-	public CostV(int v, double cost) {
-		this.v = v;
-		this.cost = cost;
-	}
-
-	@Override
-	public int compareTo(CostV cv) {
-		if (this.cost < cv.cost)
-			return -1;
-		else if (this.cost == cv.cost)
-			return 0;
-		else
-			return (int) (this.cost - cv.cost);
 	}
 }
