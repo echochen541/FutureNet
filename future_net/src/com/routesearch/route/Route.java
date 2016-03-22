@@ -33,10 +33,12 @@ public final class Route {
 	private static int minCost = Integer.MAX_VALUE;
 	private static String resultFilePath;
 
-	// path of data
-	private static String dataFilePath = "mod/data.dat";
+	// path of model and data
+	private static String fname;
+	private static String fdata;
 
-	public static String searchRoute(String graphContent, String condition, String filePath) {
+	public static String searchRoute(String graphContent, String condition,
+			String filePath) {
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -75,7 +77,8 @@ public final class Route {
 					edgeWeights[sIndex][dIndex] = weight;
 					numOfEdges++;
 				}
-				if (edgeWeights[sIndex][dIndex] != 0 && edgeWeights[sIndex][dIndex] > weight) {
+				if (edgeWeights[sIndex][dIndex] != 0
+						&& edgeWeights[sIndex][dIndex] > weight) {
 					edgeIDs[sIndex][dIndex] = edgeID;
 					edgeWeights[sIndex][dIndex] = weight;
 				}
@@ -93,77 +96,73 @@ public final class Route {
 			includingSet2.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		// visited[i] represents the vertex i has been visited or not
-		int n = neighbors.size();
-		visited = new boolean[n];
+		// Firstly, write NA to result.csv
+		resultFilePath = filePath;
+		FileUtil.write(resultFilePath, "NA", false);
 
+		// if the graph is small, call dsfSearch
+		int n = neighbors.size();
+		if (n <= 40 && includingSet.size() <= 6) {
+			// visited[i] represents the vertex i has been visited or not
+			visited = new boolean[n];
+
+			// Step 3: Search
+			List<Integer> path = new ArrayList<Integer>();
+			System.out.println(sourceIndex + "," + includingSet + ","
+					+ destinationIndex);
+			dfsSearchPath(sourceIndex, destinationIndex, path, 0);
+			System.out.println(sourceIndex + "," + minPath + ","
+					+ destinationIndex);
+			// Step 4: form result
+			if (minPath.size() != 0) {
+				System.out.print(minCost + ":");
+				return formResult();
+			}
+			System.out.println("NA");
+			return "NA";
+		}
+
+		// if graph is large call glpk solver
+		fname = "mod/ktsp.mod";
+		fdata = "mod/data.dat";
+		
 		// write data.bat
 		String text = "data;\n\n";
-		FileUtil.write(dataFilePath, text, false);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, false);
 
 		text = "param n := " + n + ";\n";
-		FileUtil.write(dataFilePath, text, true);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, true);
 
 		text = "param orig := " + sourceIndex + ";\n";
-		FileUtil.write(dataFilePath, text, true);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, true);
 
 		text = "param dest := " + destinationIndex + ";\n";
-		FileUtil.write(dataFilePath, text, true);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, true);
 
 		text = "set P :=";
 		for (int v : includingSet) {
 			text += (" " + v);
 		}
 		text += ";\n";
-		FileUtil.write(dataFilePath, text, true);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, true);
 
 		text = "param : A : c :=\n";
-		FileUtil.write(dataFilePath, text, true);
-		// System.out.print(text);
+		FileUtil.write(fdata, text, true);
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (edgeWeights[i][j] > 0) {
 					text = i + " " + j + " " + edgeWeights[i][j] + "\n";
-					FileUtil.write(dataFilePath, text, true);
-					// System.out.print(text);
+					FileUtil.write(fdata, text, true);
 				}
 			}
 		}
 
 		text = ";\n\nend;\n";
-		FileUtil.write(dataFilePath, text, true);
+		FileUtil.write(fdata, text, true);
 
-		// System.out.print(text);
-
-		// Step3: call glpk to solve
-		resultFilePath = filePath;
-		FileUtil.write(resultFilePath, "NA", false);
+		// Step3: call glpk solver
 		return mipSolver();
-
-		// System.exit(0);
-
-		// Step 3: Search
-		// List<Integer> path = new ArrayList<Integer>();
-		// System.out.println(sourceIndex + "," + includingSet + "," +
-		// destinationIndex);
-		// dfsSearchPath(sourceIndex, destinationIndex, path, 0);
-		// System.out.println(sourceIndex + "," + minPath + "," +
-		// destinationIndex);
-		// System.out.println(minCost);
-
-		// Step 4: form result
-		// if (minPath.size() != 0) {
-		// System.out.print(minCost + ":");
-		// return formResult();
-		// }
-		// System.out.println("NA");
-		// return "NA";
 	}
 
 	private static String mipSolver() {
@@ -171,28 +170,20 @@ public final class Route {
 		glp_prob lp;
 		glp_tran tran;
 		glp_iocp iocp;
-
-		String fname = "mod/ktsp.mod";
-		String fdata = dataFilePath;
 		int skip = 0;
 		int ret;
 
 		try {
 			// create problem
 			lp = GLPK.glp_create_prob();
-
 			// allocate workspace
 			tran = GLPK.glp_mpl_alloc_wksp();
-
 			// read model
 			ret = GLPK.glp_mpl_read_model(tran, fname, skip);
-
 			// read data
 			ret = GLPK.glp_mpl_read_data(tran, fdata);
-
 			// generate model
 			ret = GLPK.glp_mpl_generate(tran, null);
-
 			// build model
 			GLPK.glp_mpl_build_prob(tran, lp);
 
@@ -204,9 +195,7 @@ public final class Route {
 
 			// retrieve result
 			if (ret == 0) {
-				// GLPK.glp_mpl_postsolve(tran, lp, GLPKConstants.GLP_MIP);
 				result = write_mip_solution(lp);
-				// System.out.println(result);
 			}
 
 			// free memory
@@ -242,7 +231,8 @@ public final class Route {
 			val = GLPK.glp_mip_col_val(lp, i);
 			// System.out.println(name + "=" + val);
 			if (val > 0 && val <= cost + 1) {
-				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
+				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1,
+						name.indexOf("]")));
 				cvs.add(new CostV(v, val));
 			}
 		}
@@ -257,10 +247,12 @@ public final class Route {
 			pre = cv.v;
 		}
 
-		System.out.println(resultSb.deleteCharAt(resultSb.length() - 1).toString());
+		System.out.println(resultSb.deleteCharAt(resultSb.length() - 1)
+				.toString());
 		return resultSb.toString();
 	}
 
+	//dfs search
 	private static void dfsSearchPath(int s, int d, List<Integer> path, int cost) {
 		visited[s] = true;
 		boolean removed = false;
@@ -277,15 +269,11 @@ public final class Route {
 				continue;
 
 			if (i == d) {
-				// System.out.println(path);
 				if (includingSet.size() == 0) {
 					cost += weight;
 					if (cost < minCost) {
 						minCost = cost;
 						minPath = new ArrayList<Integer>(path);
-						// System.out.println("minPath is " + minPath);
-						// System.out.println("minCost is " + minCost);
-						// FileUtil.write(resultFilePath, formResult(), false);
 						// optimize path
 					}
 				}
@@ -303,6 +291,7 @@ public final class Route {
 		}
 	}
 
+	//form result
 	private static String formResult() {
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
@@ -315,6 +304,7 @@ public final class Route {
 		return resultSb.toString();
 	}
 
+	@SuppressWarnings("unused")
 	private static void optimizePath(List<Integer> path) {
 		int pre = -1, post = -1, preIndex = -1, weight = 0;
 		List<List<Integer>> optimizedSubPaths = new LinkedList<List<Integer>>();
@@ -332,11 +322,13 @@ public final class Route {
 				// determine the start vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex == (i - 1)) {
+			} else if (pre != -1 && includingSet2.contains(presentV)
+					&& preIndex == (i - 1)) {
 				// change the start point to this vertex
 				pre = presentV;
 				preIndex = i;
-			} else if (pre != -1 && includingSet2.contains(presentV) && preIndex != (i - 1)) {
+			} else if (pre != -1 && includingSet2.contains(presentV)
+					&& preIndex != (i - 1)) {
 				// determine the end vertex
 				post = presentV;
 				weight += edgeWeights[prePresentV][presentV];
@@ -393,7 +385,8 @@ public final class Route {
 	/**
 	 * Used by optimizePath method. Based on Dijkstra algorithm.
 	 */
-	private static List<Integer> optimizeSubPath(int start, int end, int maxWeight) {
+	private static List<Integer> optimizeSubPath(int start, int end,
+			int maxWeight) {
 		int prevVertex[] = new int[600];
 		int distance[] = new int[600];
 		boolean[] isVisited = new boolean[600];
@@ -417,7 +410,8 @@ public final class Route {
 			List<Integer> neighb = neighbors.get(prev);
 
 			// Expand the neighbors to the about to visit list.
-			for (Iterator<Integer> iterator = neighb.iterator(); iterator.hasNext();) {
+			for (Iterator<Integer> iterator = neighb.iterator(); iterator
+					.hasNext();) {
 				int tmpV = iterator.next();
 				int tmpDis = prevDistance + edgeWeights[prev][tmpV];
 				if (tmpDis >= maxWeight || tmpDis >= distance[tmpV]) {

@@ -15,12 +15,11 @@ import com.routesearch.route.Route;
  * @version v1.0
  */
 public class Main {
+	//link .ddl of glpk
 	static {
 		try {
 			addDir("link");
-			// System.out.println(System.getProperty("java.library.path"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -62,7 +61,6 @@ public class Main {
 			String[] paths = (String[]) field.get(null);
 
 			for (int i = 0; i < paths.length; i++) {
-				// System.out.println(paths[i]);
 				if (s.equals(paths[i])) {
 					return;
 				}
@@ -70,7 +68,6 @@ public class Main {
 			String[] tmp = new String[paths.length + 1];
 			System.arraycopy(paths, 0, tmp, 0, paths.length);
 			tmp[paths.length] = s;
-			// System.out.println(s);
 			field.set(null, tmp);
 		} catch (IllegalAccessException e) {
 			throw new IOException("Failed to get permissions to set library path");
