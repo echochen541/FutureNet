@@ -15,7 +15,7 @@ import com.routesearch.route.Route;
  * @version v1.0
  */
 public class Main {
-	//link .ddl of glpk
+	// link .ddl of glpk
 	static {
 		try {
 			addDir("link");
@@ -25,19 +25,19 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		// if (args.length != 3) {
-		// System.err.println("please input args:
-		// graphFilePath,conditionFilePath, resultFilePath");
-		// return;
-		// }
+		if (args.length != 3) {
+			System.err
+					.println("please input args: graphFilePath,conditionFilePath, resultFilePath");
+			return;
+		}
 
-		// String graphFilePath = args[0];
-		// String conditionFilePath = args[1];
-		// String resultFilePath = args[2];
+		String graphFilePath = args[0];
+		String conditionFilePath = args[1];
+		String resultFilePath = args[2];
 
-		String graphFilePath = "test/case3/topo.csv";
-		String conditionFilePath = "test/case3/demand.csv";
-		String resultFilePath = "test/case3/result.csv";
+		// String graphFilePath = "test/case2/topo.csv";
+		// String conditionFilePath = "test/case2/demand.csv";
+		// String resultFilePath = "test/case2/result.csv";
 
 		LogUtil.printLog("Begin");
 
@@ -46,7 +46,8 @@ public class Main {
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		// 功能实现入口
-		String resultStr = Route.searchRoute(graphContent, conditionContent, resultFilePath);
+		String resultStr = Route.searchRoute(graphContent, conditionContent,
+				resultFilePath);
 
 		// 写入输出文件
 		FileUtil.write(resultFilePath, resultStr, false);
@@ -70,9 +71,11 @@ public class Main {
 			tmp[paths.length] = s;
 			field.set(null, tmp);
 		} catch (IllegalAccessException e) {
-			throw new IOException("Failed to get permissions to set library path");
+			throw new IOException(
+					"Failed to get permissions to set library path");
 		} catch (NoSuchFieldException e) {
-			throw new IOException("Failed to get field handle to set library path");
+			throw new IOException(
+					"Failed to get field handle to set library path");
 		}
 	}
 }

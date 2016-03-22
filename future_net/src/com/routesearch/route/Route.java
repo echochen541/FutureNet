@@ -30,7 +30,7 @@ class CostV implements Comparable<CostV> {
 		else if (this.cost == cv.cost)
 			return 0;
 		else
-			return (int) (this.cost - cv.cost);
+			return 1;
 	}
 }
 
@@ -119,7 +119,7 @@ public final class Route {
 
 		// Firstly, write NA to result.csv
 		resultFilePath = filePath;
-		FileUtil.write(resultFilePath, "NA", false);
+		// FileUtil.write(resultFilePath, "NA", false);
 
 		// if the graph is small, call dsfSearch
 		int n = neighbors.size();
@@ -251,7 +251,7 @@ public final class Route {
 			name = GLPK.glp_get_col_name(lp, i);
 			val = GLPK.glp_mip_col_val(lp, i);
 			// System.out.println(name + "=" + val);
-			if (val > 0 && val <= cost + 1) {
+			if (val > 0.0 && val <= cost + 1.0) {
 				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1,
 						name.indexOf("]")));
 				cvs.add(new CostV(v, val));
@@ -261,7 +261,17 @@ public final class Route {
 		Collections.sort(cvs);
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
-		for (CostV cv : cvs) {
+
+		// find the first index i of cvs, that source vertex can reach cvs[i].v
+		i = 0;
+		while (i < cvs.size() && edgeWeights[pre][cvs.get(i).v] == 0) {
+			i++;
+		}
+
+		for (; i < cvs.size(); i++) {
+			CostV cv = cvs.get(i);
+			// System.out.println(cv.v + "," + cv.cost);
+
 			if (edgeWeights[pre][cv.v] > 0) {
 				resultSb.append(edgeIDs[pre][cv.v] + "|");
 			}
