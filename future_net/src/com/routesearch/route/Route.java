@@ -59,6 +59,7 @@ public final class Route {
 	private static String fdata;
 
 	public static String searchRoute(String graphContent, String condition, String filePath) {
+		resultFilePath = filePath;
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -115,27 +116,22 @@ public final class Route {
 			includingSet2.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		// Firstly, write NA to result.csv
-		resultFilePath = filePath;
-		// FileUtil.write(resultFilePath, "NA", false);
-
 		// if the graph is small, call dsfSearch
 		int n = neighbors.size();
-		if (n <= 40 && includingSet.size() <= 6) {
+		if (n <= 50 && includingSet.size() <= 10) {
 			// visited[i] represents the vertex i has been visited or not
 			visited = new boolean[n];
 
 			// Step 3: Search
 			List<Integer> path = new ArrayList<Integer>();
-			System.out.println(sourceIndex + "," + includingSet + "," + destinationIndex);
 			dfsSearchPath(sourceIndex, destinationIndex, path, 0);
-			System.out.println(sourceIndex + "," + minPath + "," + destinationIndex);
+
 			// Step 4: form result
 			if (minPath.size() != 0) {
-				System.out.print(minCost + ":");
+				// FileUtil.write(resultFilePath, formResult(), false);
 				return formResult();
 			}
-			System.out.println("NA");
+			// FileUtil.write(resultFilePath, "NA", false);
 			return "NA";
 		}
 
@@ -179,89 +175,15 @@ public final class Route {
 		FileUtil.write(fdata, text, true);
 
 		// Step3: call glpk solver
-		return mipSolver();
-	}
+		List<CostV> cvs = new MIP(fname, fdata, resultFilePath).mipSolver(numOfEdges);
 
-	private static String mipSolver() {
-		// GLPK.glp_java_set_numeric_locale("C");
-		String result = "NA";
-		glp_prob lp;
-		glp_tran tran;
-		glp_iocp iocp;
-		int skip = 0;
-		int ret;
+		// FileUtil.write(resultFilePath, "1|2|3", false);
 
-		try {
-			// create problem
-			lp = GLPK.glp_create_prob();
-			// allocate workspace
-			tran = GLPK.glp_mpl_alloc_wksp();
-			// read model
-			ret = GLPK.glp_mpl_read_model(tran, fname, skip);
-			// read data
-			ret = GLPK.glp_mpl_read_data(tran, fdata);
-			// generate model
-			ret = GLPK.glp_mpl_generate(tran, null);
-			// build model
-			GLPK.glp_mpl_build_prob(tran, lp);
-
-			// solve model
-			iocp = new glp_iocp();
-			GLPK.glp_init_iocp(iocp);
-			iocp.setPresolve(1);
-			ret = GLPK.glp_intopt(lp, iocp);
-
-			// retrieve result
-			if (ret == 0) {
-				result = write_mip_solution(lp);
-			}
-
-			// free memory
-			GLPK.glp_mpl_free_wksp(tran);
-			GLPK.glp_delete_prob(lp);
-
-		} catch (org.gnu.glpk.GlpkException e) {
-			System.err.println("An error inside the GLPK library occured.");
-			System.err.println(e.getMessage());
-		} catch (RuntimeException e) {
-			System.err.println(e.getMessage());
-		}
-		return result;
-	}
-
-	private static String write_mip_solution(glp_prob lp) {
-		int i;
-		int n;
-		String name;
-		double val;
-		double cost;
-		List<CostV> cvs = new ArrayList<CostV>();
-
-		name = GLPK.glp_get_obj_name(lp);
-		val = GLPK.glp_mip_obj_val(lp);
-		System.out.print(name);
-		System.out.print(" = ");
-		System.out.println(val);
-		cost = val;
-		n = GLPK.glp_get_num_cols(lp);
-
-		for (i = numOfEdges + 1; i <= n; i++) {
-			name = GLPK.glp_get_col_name(lp, i);
-			val = GLPK.glp_mip_col_val(lp, i);
-			// System.out.println(name + "=" + val);
-
-			if (val > 0.0 && val <= cost + 1.0) {
-				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
-				cvs.add(new CostV(v, val));
-			}
-		}
-
-		Collections.sort(cvs);
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
 
 		// find the first index i of cvs, that source vertex can reach cvs[i].v
-		i = 0;
+		int i = 0;
 		while (i < cvs.size() && edgeWeights[pre][cvs.get(i).v] == 0) {
 			i++;
 		}
@@ -274,7 +196,10 @@ public final class Route {
 			pre = cv.v;
 		}
 
-		System.out.println(resultSb.deleteCharAt(resultSb.length() - 1).toString());
+		// System.out.println(resultSb.deleteCharAt(resultSb.length() -
+		// 1).toString());
+		// FileUtil.write(resultFilePath,
+		// resultSb.deleteCharAt(resultSb.length() - 1).toString(), false);
 		return resultSb.toString();
 	}
 
@@ -326,7 +251,6 @@ public final class Route {
 			pre = i;
 		}
 		resultSb.append(edgeIDs[pre][destinationIndex]);
-		System.out.println(resultSb.toString());
 		return resultSb.toString();
 	}
 

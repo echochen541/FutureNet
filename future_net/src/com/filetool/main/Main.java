@@ -34,11 +34,11 @@ public class Main {
 		String conditionFilePath = args[1];
 		String resultFilePath = args[2];
 
-		// String graphFilePath = "test/case2/topo.csv";
-		// String conditionFilePath = "test/case2/demand.csv";
-		// String resultFilePath = "test/case2/result.csv";
+		// String graphFilePath = "test/case1/topo.csv";
+		// String conditionFilePath = "test/case1/demand.csv";
+		// String resultFilePath = "test/case1/result.csv";
 
-		LogUtil.printLog("Begin");
+		// LogUtil.printLog("Begin");
 
 		// 读取输入文件
 		String graphContent = FileUtil.read(graphFilePath, null);
@@ -50,7 +50,7 @@ public class Main {
 		// 写入输出文件
 		FileUtil.write(resultFilePath, resultStr, false);
 
-		LogUtil.printLog("End");
+		// LogUtil.printLog("End");
 	}
 
 	public static void addDir(String s) throws IOException {
