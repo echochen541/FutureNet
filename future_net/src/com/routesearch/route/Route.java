@@ -167,6 +167,7 @@ public final class Route {
 	}
 
 	private static String mipSolver() {
+		// GLPK.glp_java_set_numeric_locale("C");
 		String result = "NA";
 		glp_prob lp;
 		glp_tran tran;
@@ -237,11 +238,12 @@ public final class Route {
 		System.out.println(val);
 		cost = val;
 		n = GLPK.glp_get_num_cols(lp);
+
 		for (i = numOfEdges + 1; i <= n; i++) {
 			name = GLPK.glp_get_col_name(lp, i);
 			val = GLPK.glp_mip_col_val(lp, i);
 			// System.out.println(name + "=" + val);
-			if (val > 0 && val <= cost + 1) {
+			if (val >= 0.5 && val <= cost + 1) {
 				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
 				cvs.add(new CostV(v, val));
 			}
@@ -251,6 +253,7 @@ public final class Route {
 		StringBuffer resultSb = new StringBuffer();
 		int pre = sourceIndex;
 		for (CostV cv : cvs) {
+			// System.out.println(cv.v + "," + cv.cost);
 			if (edgeWeights[pre][cv.v] > 0) {
 				resultSb.append(edgeIDs[pre][cv.v] + "|");
 			}

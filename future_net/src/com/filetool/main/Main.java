@@ -18,7 +18,7 @@ public class Main {
 	static {
 		try {
 			addDir("link");
-			// System.out.println(System.getProperty("java.library.path"));
+			LogUtil.printLog("Load Completed!");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -26,19 +26,17 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		// if (args.length != 3) {
-		// System.err.println("please input args:
-		// graphFilePath,conditionFilePath, resultFilePath");
-		// return;
-		// }
+		if (args.length != 3) {
+			System.err.println("please input args: graphFilePath,conditionFilePath, resultFilePath");
+			return;
+		}
 
-		// String graphFilePath = args[0];
-		// String conditionFilePath = args[1];
-		// String resultFilePath = args[2];
-
-		String graphFilePath = "test/case3/topo.csv";
-		String conditionFilePath = "test/case3/demand.csv";
-		String resultFilePath = "test/case3/result.csv";
+		String graphFilePath = args[0];
+		String conditionFilePath = args[1];
+		String resultFilePath = args[2];
+		// String graphFilePath = "test/case3/topo.csv";
+		// String conditionFilePath = "test/case3/demand.csv";
+		// String resultFilePath = "test/case3/result.csv";
 
 		LogUtil.printLog("Begin");
 
