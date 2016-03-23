@@ -15,7 +15,7 @@ import com.routesearch.route.Route;
  * @version v1.0
  */
 public class Main {
-	// link .ddl of glpk
+	// link dynamic library of glpk
 	static {
 		try {
 			addDir("link");

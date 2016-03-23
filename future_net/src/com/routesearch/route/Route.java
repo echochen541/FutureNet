@@ -9,8 +9,6 @@ package com.routesearch.route;
 
 import java.util.*;
 
-import org.gnu.glpk.*;
-
 import com.filetool.util.FileUtil;
 
 /** cost represents the cost from source to v */
@@ -135,7 +133,7 @@ public final class Route {
 			return "NA";
 		}
 
-		// if graph is large call glpk solver
+		// if graph is large, call glpk solver
 		fname = "mod/ktsp.mod";
 		fdata = "mod/data.dat";
 
@@ -198,8 +196,7 @@ public final class Route {
 
 		// System.out.println(resultSb.deleteCharAt(resultSb.length() -
 		// 1).toString());
-		// FileUtil.write(resultFilePath,
-		// resultSb.deleteCharAt(resultSb.length() - 1).toString(), false);
+		resultSb.deleteCharAt(resultSb.length() - 1).toString();
 		return resultSb.toString();
 	}
 
