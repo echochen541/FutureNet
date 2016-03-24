@@ -12,22 +12,17 @@ import org.gnu.glpk.glp_iocp;
 import org.gnu.glpk.glp_prob;
 import org.gnu.glpk.glp_tran;
 
-import com.filetool.util.FileUtil;
-
-public class MIP implements GlpkTerminalListener {
+public class Mip implements GlpkTerminalListener {
 	private String fname;
 	private String fdata;
-	private static String resultFilePath;
 
-	public MIP(String fname, String fdata, String resultFilePath) {
+	public Mip(String fname, String fdata) {
 		this.fname = fname;
 		this.fdata = fdata;
-		this.resultFilePath = resultFilePath;
 	}
 
 	public List<CostV> mipSolver(int numOfEdges) {
 		GLPK.glp_java_set_numeric_locale("C");
-		// FileUtil.write(resultFilePath, "NA", false);
 		glp_prob lp;
 		glp_tran tran;
 		glp_iocp iocp;
@@ -83,18 +78,14 @@ public class MIP implements GlpkTerminalListener {
 
 		name = GLPK.glp_get_obj_name(lp);
 		val = GLPK.glp_mip_obj_val(lp);
-		// System.out.print(name);
-		// System.out.print(" = ");
-		// System.out.println(val);
 		cost = val;
 		n = GLPK.glp_get_num_cols(lp);
 
 		for (i = numOfEdges + 1; i <= n; i++) {
 			name = GLPK.glp_get_col_name(lp, i);
 			val = GLPK.glp_mip_col_val(lp, i);
-			// System.out.println(name + "=" + val);
 
-			if (val > 0.0 && val <= cost + 1.0) {
+			if (val > 0.0 && val <= cost + 0.5) {
 				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
 				cvs.add(new CostV(v, val));
 			}

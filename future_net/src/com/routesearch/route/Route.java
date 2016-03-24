@@ -9,6 +9,7 @@ package com.routesearch.route;
 
 import java.util.*;
 
+import com.filetool.main.Main;
 import com.filetool.util.FileUtil;
 
 /** cost represents the cost from source to v */
@@ -50,14 +51,12 @@ public final class Route {
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
-	private static String resultFilePath;
 
 	// path of model and data
 	private static String fname;
 	private static String fdata;
 
-	public static String searchRoute(String graphContent, String condition, String filePath) {
-		resultFilePath = filePath;
+	public static String searchRoute(String graphContent, String condition) {
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -116,7 +115,7 @@ public final class Route {
 
 		// if the graph is small, call dsfSearch
 		int n = neighbors.size();
-		if (n <= 50 && includingSet.size() <= 10) {
+		if (n <= 40 && includingSet.size() <= 6) {
 			// visited[i] represents the vertex i has been visited or not
 			visited = new boolean[n];
 
@@ -134,8 +133,8 @@ public final class Route {
 		}
 
 		// if graph is large, call glpk solver
-		fname = "mod/ktsp.mod";
-		fdata = "mod/data.dat";
+		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
 
 		// write data.bat
 		String text = "data;\n\n";
@@ -173,29 +172,19 @@ public final class Route {
 		FileUtil.write(fdata, text, true);
 
 		// Step3: call glpk solver
-		List<CostV> cvs = new MIP(fname, fdata, resultFilePath).mipSolver(numOfEdges);
-
-		// FileUtil.write(resultFilePath, "1|2|3", false);
+		List<CostV> cvs = new Mip(fname, fdata).mipSolver(numOfEdges);
 
 		StringBuffer resultSb = new StringBuffer();
+
 		int pre = sourceIndex;
-
-		// find the first index i of cvs, that source vertex can reach cvs[i].v
-		int i = 0;
-		while (i < cvs.size() && edgeWeights[pre][cvs.get(i).v] == 0) {
-			i++;
-		}
-
-		for (; i < cvs.size(); i++) {
+		for (int i = 0; i < cvs.size(); i++) {
 			CostV cv = cvs.get(i);
 			if (edgeWeights[pre][cv.v] > 0) {
 				resultSb.append(edgeIDs[pre][cv.v] + "|");
+				pre = cv.v;
 			}
-			pre = cv.v;
 		}
 
-		// System.out.println(resultSb.deleteCharAt(resultSb.length() -
-		// 1).toString());
 		resultSb.deleteCharAt(resultSb.length() - 1).toString();
 		return resultSb.toString();
 	}
