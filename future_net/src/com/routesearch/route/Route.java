@@ -37,12 +37,12 @@ public final class Route {
 	// attributes of graph
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
-	private static int[][] edgeIDs = new int[600][600];
-	private static int[][] edgeWeights = new int[600][600];
+	public static int[][] edgeIDs = new int[600][600];
+	public static int[][] edgeWeights = new int[600][600];
 	private static int numOfEdges = 0;
 
 	// conditions
-	private static int sourceIndex = 0;
+	public static int sourceIndex = 0;
 	private static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
 	private static List<Integer> includingSet2 = new ArrayList<Integer>();
@@ -52,11 +52,12 @@ public final class Route {
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
 
-	// path of model and data
+	// path of model ,data and result
 	private static String fname;
 	private static String fdata;
+	public static String resultFilePath;
 
-	public static String searchRoute(String graphContent, String condition) {
+	public static String searchRoute(String graphContent, String condition, String filePath) {
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -65,7 +66,7 @@ public final class Route {
 			int edgeID = Integer.parseInt(line[0]);
 			int sID = Integer.parseInt(line[1]);
 			int dID = Integer.parseInt(line[2]);
-			int weight = Integer.parseInt(line[3]);
+			int weight = Integer.parseInt(line[3].trim());
 
 			// remove self-loop
 			if (sID == dID) {
@@ -131,10 +132,14 @@ public final class Route {
 			// FileUtil.write(resultFilePath, "NA", false);
 			return "NA";
 		}
-
 		// if graph is large, call glpk solver
-		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
-		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+
+		// for linux
+		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		// for windows
+		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
 		String text = "data;\n\n";
@@ -143,10 +148,10 @@ public final class Route {
 		text = "param n := " + n + ";\n";
 		FileUtil.write(fdata, text, true);
 
-		text = "param orig := " + sourceIndex + ";\n";
+		text = "param s := " + sourceIndex + ";\n";
 		FileUtil.write(fdata, text, true);
 
-		text = "param dest := " + destinationIndex + ";\n";
+		text = "param t := " + destinationIndex + ";\n";
 		FileUtil.write(fdata, text, true);
 
 		text = "set P :=";
@@ -172,7 +177,8 @@ public final class Route {
 		FileUtil.write(fdata, text, true);
 
 		// Step3: call glpk solver
-		List<CostV> cvs = new Mip(fname, fdata).mipSolver(numOfEdges);
+		resultFilePath = filePath;
+		List<CostV> cvs = new Mip(fname, fdata, numOfEdges).mipSolver();
 
 		StringBuffer resultSb = new StringBuffer();
 

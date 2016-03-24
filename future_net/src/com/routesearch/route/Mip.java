@@ -1,33 +1,32 @@
 package com.routesearch.route;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import org.gnu.glpk.*;
 
-import org.gnu.glpk.GLPK;
-import org.gnu.glpk.GLPKConstants;
-import org.gnu.glpk.GlpkTerminal;
-import org.gnu.glpk.GlpkTerminalListener;
-import org.gnu.glpk.glp_iocp;
-import org.gnu.glpk.glp_prob;
-import org.gnu.glpk.glp_tran;
+import com.filetool.util.FileUtil;
 
-public class Mip implements GlpkTerminalListener {
+public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
+	private boolean hookUsed = false;
 	private String fname;
 	private String fdata;
+	private int numOfEdges;
+	private glp_prob lp;
 
-	public Mip(String fname, String fdata) {
+	public Mip(String fname, String fdata, int numOfEdges) {
 		this.fname = fname;
 		this.fdata = fdata;
+		this.numOfEdges = numOfEdges;
 	}
 
-	public List<CostV> mipSolver(int numOfEdges) {
+	public List<CostV> mipSolver() {
 		GLPK.glp_java_set_numeric_locale("C");
-		glp_prob lp;
 		glp_tran tran;
 		glp_iocp iocp;
 		int skip = 0;
 		int ret;
+
+		// listen to callbacks
+		GlpkCallback.addListener(this);
 
 		// listen to terminal output
 		GlpkTerminal.addListener(this);
@@ -45,11 +44,17 @@ public class Mip implements GlpkTerminalListener {
 			// build model
 			GLPK.glp_mpl_build_prob(tran, lp);
 
-			// solve model
+			// set solver parameters
 			iocp = new glp_iocp();
 			GLPK.glp_init_iocp(iocp);
 			iocp.setPresolve(GLPKConstants.GLP_ON);
+
+			// do not listen to output anymore
+			// GlpkTerminal.removeListener(this);
+
+			// solve model
 			ret = GLPK.glp_intopt(lp, iocp);
+
 			// retrieve result
 			if (ret == 0) {
 				return write_mip_solution(lp, numOfEdges);
@@ -64,6 +69,13 @@ public class Mip implements GlpkTerminalListener {
 			System.err.println(e.getMessage());
 		} catch (RuntimeException e) {
 			System.err.println(e.getMessage());
+		}
+		// do not listen for callbacks anymore
+		GlpkCallback.removeListener(this);
+
+		// check that the terminal hook function has been used
+		if (!hookUsed) {
+			throw new RuntimeException("The terminal output hook was not used.");
 		}
 		return null;
 	}
@@ -96,8 +108,33 @@ public class Mip implements GlpkTerminalListener {
 	}
 
 	@Override
-	public boolean output(String arg0) {
-		// do nothing
+	public boolean output(String str) {
+		hookUsed = true;
+		// System.out.print(str);
 		return false;
+	}
+
+	@Override
+	public void callback(glp_tree tree) {
+		int reason = GLPK.glp_ios_reason(tree);
+		if (reason == GLPKConstants.GLP_IBINGO) {
+			// System.out.println("Better solution found");
+			// write answer to result.csv
+			List<CostV> cvs = write_mip_solution(lp, numOfEdges);
+
+			StringBuffer resultSb = new StringBuffer();
+
+			int pre = Route.sourceIndex;
+			for (int i = 0; i < cvs.size(); i++) {
+				CostV cv = (CostV) cvs.get(i);
+				if (Route.edgeWeights[pre][cv.v] > 0) {
+					resultSb.append(Route.edgeIDs[pre][cv.v] + "|");
+					pre = cv.v;
+				}
+			}
+			resultSb.deleteCharAt(resultSb.length() - 1).toString();
+			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
+			System.out.println(resultSb.toString());
+		}
 	}
 }
