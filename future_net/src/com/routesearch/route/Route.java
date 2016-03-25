@@ -9,6 +9,7 @@ package com.routesearch.route;
 
 import java.util.*;
 
+import com.filetool.main.Main;
 import com.filetool.util.FileUtil;
 
 /** cost represents the cost from source to v */
@@ -36,12 +37,12 @@ public final class Route {
 	// attributes of graph
 	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
-	private static int[][] edgeIDs = new int[600][600];
-	private static int[][] edgeWeights = new int[600][600];
+	public static int[][] edgeIDs = new int[600][600];
+	public static int[][] edgeWeights = new int[600][600];
 	private static int numOfEdges = 0;
 
 	// conditions
-	private static int sourceIndex = 0;
+	public static int sourceIndex = 0;
 	private static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
 	private static List<Integer> includingSet2 = new ArrayList<Integer>();
@@ -50,14 +51,13 @@ public final class Route {
 	private static boolean[] visited;
 	private static List<Integer> minPath = new ArrayList<Integer>();
 	private static int minCost = Integer.MAX_VALUE;
-	private static String resultFilePath;
 
-	// path of model and data
+	// path of model ,data and result
 	private static String fname;
 	private static String fdata;
+	public static String resultFilePath;
 
 	public static String searchRoute(String graphContent, String condition, String filePath) {
-		resultFilePath = filePath;
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -66,7 +66,7 @@ public final class Route {
 			int edgeID = Integer.parseInt(line[0]);
 			int sID = Integer.parseInt(line[1]);
 			int dID = Integer.parseInt(line[2]);
-			int weight = Integer.parseInt(line[3]);
+			int weight = Integer.parseInt(line[3].trim());
 
 			// remove self-loop
 			if (sID == dID) {
@@ -116,7 +116,7 @@ public final class Route {
 
 		// if the graph is small, call dsfSearch
 		int n = neighbors.size();
-		if (n <= 50 && includingSet.size() <= 10) {
+		if (n <= 40 && includingSet.size() <= 6) {
 			// visited[i] represents the vertex i has been visited or not
 			visited = new boolean[n];
 
@@ -132,10 +132,14 @@ public final class Route {
 			// FileUtil.write(resultFilePath, "NA", false);
 			return "NA";
 		}
-
 		// if graph is large, call glpk solver
-		fname = "mod/ktsp.mod";
-		fdata = "mod/data.dat";
+
+		// for linux
+		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		// for windows
+		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
 		String text = "data;\n\n";
@@ -144,10 +148,10 @@ public final class Route {
 		text = "param n := " + n + ";\n";
 		FileUtil.write(fdata, text, true);
 
-		text = "param orig := " + sourceIndex + ";\n";
+		text = "param s := " + sourceIndex + ";\n";
 		FileUtil.write(fdata, text, true);
 
-		text = "param dest := " + destinationIndex + ";\n";
+		text = "param t := " + destinationIndex + ";\n";
 		FileUtil.write(fdata, text, true);
 
 		text = "set P :=";
@@ -173,29 +177,20 @@ public final class Route {
 		FileUtil.write(fdata, text, true);
 
 		// Step3: call glpk solver
-		List<CostV> cvs = new MIP(fname, fdata, resultFilePath).mipSolver(numOfEdges);
-
-		// FileUtil.write(resultFilePath, "1|2|3", false);
+		resultFilePath = filePath;
+		List<CostV> cvs = new Mip(fname, fdata, numOfEdges).mipSolver();
 
 		StringBuffer resultSb = new StringBuffer();
+
 		int pre = sourceIndex;
-
-		// find the first index i of cvs, that source vertex can reach cvs[i].v
-		int i = 0;
-		while (i < cvs.size() && edgeWeights[pre][cvs.get(i).v] == 0) {
-			i++;
-		}
-
-		for (; i < cvs.size(); i++) {
+		for (int i = 0; i < cvs.size(); i++) {
 			CostV cv = cvs.get(i);
 			if (edgeWeights[pre][cv.v] > 0) {
 				resultSb.append(edgeIDs[pre][cv.v] + "|");
+				pre = cv.v;
 			}
-			pre = cv.v;
 		}
 
-		// System.out.println(resultSb.deleteCharAt(resultSb.length() -
-		// 1).toString());
 		resultSb.deleteCharAt(resultSb.length() - 1).toString();
 		return resultSb.toString();
 	}
