@@ -57,7 +57,8 @@ public final class Route {
 	private static String fdata;
 	public static String resultFilePath;
 
-	public static String searchRoute(String graphContent, String condition, String filePath) {
+	public static void searchRoute(String graphContent, String condition, String filePath) {
+		resultFilePath = filePath;
 		// Step 1: Construct the weighted directed graph
 		String[] lines = graphContent.split("\\n");
 		int index = -1;
@@ -116,7 +117,7 @@ public final class Route {
 
 		// if the graph is small, call dsfSearch
 		int n = neighbors.size();
-		if (n <= 40 && includingSet.size() <= 6) {
+		if (n <= 45 && includingSet.size() <= 6) {
 			// visited[i] represents the vertex i has been visited or not
 			visited = new boolean[n];
 
@@ -126,33 +127,25 @@ public final class Route {
 
 			// Step 4: form result
 			if (minPath.size() != 0) {
-				// FileUtil.write(resultFilePath, formResult(), false);
-				return formResult();
+				FileUtil.write(resultFilePath, formResult(), false);
+				return;
 			}
-			// FileUtil.write(resultFilePath, "NA", false);
-			return "NA";
+			FileUtil.write(resultFilePath, "NA", false);
+			return;
 		}
 		// if graph is large, call glpk solver
 
 		// for linux
-		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
-		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
 		// for windows
-		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
-		fdata = System.getProperty("user.dir") + "/mod/data.dat";
+		// fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		// fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
-		String text = "data;\n\n";
+		String text = "data;\n\nparam n := " + n + ";\nparam s := " + sourceIndex + ";\nparam t := " + destinationIndex
+				+ ";\n";
 		FileUtil.write(fdata, text, false);
-
-		text = "param n := " + n + ";\n";
-		FileUtil.write(fdata, text, true);
-
-		text = "param s := " + sourceIndex + ";\n";
-		FileUtil.write(fdata, text, true);
-
-		text = "param t := " + destinationIndex + ";\n";
-		FileUtil.write(fdata, text, true);
 
 		text = "set P :=";
 		for (int v : includingSet) {
@@ -177,22 +170,8 @@ public final class Route {
 		FileUtil.write(fdata, text, true);
 
 		// Step3: call glpk solver
-		resultFilePath = filePath;
-		List<CostV> cvs = new Mip(fname, fdata, numOfEdges).mipSolver();
-
-		StringBuffer resultSb = new StringBuffer();
-
-		int pre = sourceIndex;
-		for (int i = 0; i < cvs.size(); i++) {
-			CostV cv = cvs.get(i);
-			if (edgeWeights[pre][cv.v] > 0) {
-				resultSb.append(edgeIDs[pre][cv.v] + "|");
-				pre = cv.v;
-			}
-		}
-
-		resultSb.deleteCharAt(resultSb.length() - 1).toString();
-		return resultSb.toString();
+		new Mip(fname, fdata, numOfEdges).mipSolver();
+		return;
 	}
 
 	// dfs search

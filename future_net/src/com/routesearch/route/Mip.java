@@ -18,7 +18,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		this.numOfEdges = numOfEdges;
 	}
 
-	public List<CostV> mipSolver() {
+	public void mipSolver() {
 		GLPK.glp_java_set_numeric_locale("C");
 		glp_tran tran;
 		glp_iocp iocp;
@@ -49,16 +49,12 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 			GLPK.glp_init_iocp(iocp);
 			iocp.setPresolve(GLPKConstants.GLP_ON);
 
-			// do not listen to output anymore
-			// GlpkTerminal.removeListener(this);
-
 			// solve model
 			ret = GLPK.glp_intopt(lp, iocp);
 
 			// retrieve result
-			if (ret == 0) {
-				return write_mip_solution(lp, numOfEdges);
-			}
+			if (ret == 0)
+				return;
 
 			// free memory
 			GLPK.glp_mpl_free_wksp(tran);
@@ -70,6 +66,8 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		} catch (RuntimeException e) {
 			System.err.println(e.getMessage());
 		}
+		// do not listen to output anymore
+		GlpkTerminal.removeListener(this);
 		// do not listen for callbacks anymore
 		GlpkCallback.removeListener(this);
 
@@ -77,7 +75,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		if (!hookUsed) {
 			throw new RuntimeException("The terminal output hook was not used.");
 		}
-		return null;
+		return;
 	}
 
 	private static List<CostV> write_mip_solution(glp_prob lp, int numOfEdges) {
@@ -134,7 +132,6 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 			}
 			resultSb.deleteCharAt(resultSb.length() - 1).toString();
 			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
-			System.out.println(resultSb.toString());
 		}
 	}
 }
