@@ -12,13 +12,13 @@ import com.routesearch.route.Route;
  */
 public class Main {
 	public static void main(String[] args) {
-		String graphFilePath = args[0];
-		String conditionFilePath = args[1];
-		String resultFilePath = args[2];
+		// String graphFilePath = args[0];
+		// String conditionFilePath = args[1];
+		// String resultFilePath = args[2];
 
-		// String graphFilePath = "test/case2/topo.csv";
-		// String conditionFilePath = "test/case2/demand.csv";
-		// String resultFilePath = "test/case2/result.csv";
+		String graphFilePath = "test/case4/topo.csv";
+		String conditionFilePath = "test/case4/demand.csv";
+		String resultFilePath = "test/case4/result.csv";
 
 		// 读取输入文件
 		String graphContent = FileUtil.read(graphFilePath, null);

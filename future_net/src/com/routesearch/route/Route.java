@@ -40,6 +40,7 @@ public final class Route {
 	public static int[][] edgeIDs = new int[600][600];
 	public static int[][] edgeWeights = new int[600][600];
 	private static int numOfEdges = 0;
+	public static int numOfVertices = 0;
 
 	// conditions
 	public static int sourceIndex = 0;
@@ -116,10 +117,10 @@ public final class Route {
 		}
 
 		// if the graph is small, call dsfSearch
-		int n = neighbors.size();
-		if (n <= 45 && includingSet.size() <= 6) {
+		numOfVertices = neighbors.size();
+		if (numOfVertices <= 45 && includingSet.size() <= 6) {
 			// visited[i] represents the vertex i has been visited or not
-			visited = new boolean[n];
+			visited = new boolean[numOfVertices];
 
 			// Step 3: Search
 			List<Integer> path = new ArrayList<Integer>();
@@ -134,17 +135,30 @@ public final class Route {
 			return;
 		}
 		// if graph is large, call glpk solver
+		// remove all edges to s, and all edges from t
+		for (int i = 0; i < numOfVertices; i++) {
+			if (edgeWeights[i][sourceIndex] != 0) {
+				edgeIDs[i][sourceIndex] = 0;
+				edgeWeights[i][sourceIndex] = 0;
+				numOfEdges--;
+			}
+			if (edgeWeights[destinationIndex][i] != 0) {
+				edgeIDs[destinationIndex][i] = 0;
+				edgeWeights[destinationIndex][i] = 0;
+				numOfEdges--;
+			}
+		}
 
 		// for linux
-		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
-		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
 		// for windows
-		// fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
-		// fdata = System.getProperty("user.dir") + "/mod/data.dat";
+		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
-		String text = "data;\n\nparam n := " + n + ";\nparam s := " + sourceIndex + ";\nparam t := " + destinationIndex
-				+ ";\n";
+		String text = "data;\n\nparam n := " + numOfVertices + ";\nparam s := " + sourceIndex + ";\nparam t := "
+				+ destinationIndex + ";\n";
 		FileUtil.write(fdata, text, false);
 
 		text = "set P :=";
@@ -157,8 +171,8 @@ public final class Route {
 		text = "param : A : c :=\n";
 		FileUtil.write(fdata, text, true);
 
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < numOfVertices; i++) {
+			for (int j = 0; j < numOfVertices; j++) {
 				if (edgeWeights[i][j] > 0) {
 					text = i + " " + j + " " + edgeWeights[i][j] + "\n";
 					FileUtil.write(fdata, text, true);
