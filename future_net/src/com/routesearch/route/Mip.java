@@ -130,7 +130,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 					pre = cv.v;
 				}
 			}
-			resultSb.deleteCharAt(resultSb.length() - 1).toString();
+			resultSb.deleteCharAt(resultSb.length() - 1);
 			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
 		}
 	}

@@ -27,11 +27,11 @@ subject to flows:
 subject to flowt:
   sum{u in V : (u,t) in A} y[u,t] - sum{u in V : (t,u) in A} y[t,u] = 1;
 
-#subject to inflows:
-#  sum{u in V diff {s} : (u,s) in A} y[u,s] = 0;
+subject to inflows:
+  sum{u in V diff {s} : (u,s) in A} y[u,s] = 0;
 
-#subject to outflowt:
-#  sum{u in V diff {t} : (t,u) in A} y[t,u] = 0;
+subject to outflowt:
+  sum{u in V diff {t} : (t,u) in A} y[t,u] = 0;
   
 subject to visit{v in P  diff {s,t}} :
   sum{u in V : (u,v) in A} y[u,v] = 1;
