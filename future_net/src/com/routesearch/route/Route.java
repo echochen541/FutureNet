@@ -136,42 +136,42 @@ public final class Route {
 		}
 
 		// add edges to s, and all edges from t
-		// if (includingSet.size() != 20) {
-	    int sizeLeaveS = neighbors.get(sourceIndex).size();
-	    int sizeLeaveT = neighbors.get(destinationIndex).size();
+		if (includingSet.size() != 20) {
+			int sizeLeaveS = neighbors.get(sourceIndex).size();
+			int sizeLeaveT = neighbors.get(destinationIndex).size();
 
-	    int sizeEnterS = 0;
-	    int sizeEnterT = 0;
-	    for (int i = 0; i < numOfVertices; i++) {
-	      if (edgeWeights[i][sourceIndex] != 0) {
-	        sizeEnterS++;
-	      }
-	    }
-	    for (int i = 0; i < numOfVertices; i++) {
-	      if (edgeWeights[i][destinationIndex] != 0) {
-	        sizeEnterT++;
-	      }
-	    }
+			int sizeEnterS = 0;
+			int sizeEnterT = 0;
+			for (int i = 0; i < numOfVertices; i++) {
+				if (edgeWeights[i][sourceIndex] != 0) {
+					sizeEnterS++;
+				}
+			}
+			for (int i = 0; i < numOfVertices; i++) {
+				if (edgeWeights[i][destinationIndex] != 0) {
+					sizeEnterT++;
+				}
+			}
 
-	    for (int i = 0; (i < numOfVertices) && (sizeEnterS >= sizeLeaveS); i++) {
-	      if ((i != sourceIndex) && (edgeWeights[i][sourceIndex] != 0)) {
-	        edgeIDs[i][sourceIndex] = 0;
-	        edgeWeights[i][sourceIndex] = 0;
-	        numOfEdges -= 1;
-	        sizeEnterS--;
-	      }
-	    }
+			for (int i = 0; (i < numOfVertices) && (sizeEnterS >= sizeLeaveS); i++) {
+				if ((i != sourceIndex) && (edgeWeights[i][sourceIndex] != 0)) {
+					edgeIDs[i][sourceIndex] = 0;
+					edgeWeights[i][sourceIndex] = 0;
+					numOfEdges--;
+					sizeEnterS--;
+				}
+			}
 
-	    for (int i = 0; (i < numOfVertices) && (sizeLeaveT >= sizeEnterT); i++) {
-	      if ((i != destinationIndex) && (edgeWeights[destinationIndex][i] != 0)) {
-	        edgeIDs[destinationIndex][i] = 0;
-	        edgeWeights[destinationIndex][i] = 0;
-	        numOfEdges -= 1;
-	        sizeLeaveT--;
-	      }
-	    }
+			for (int i = 0; (i < numOfVertices) && (sizeLeaveT >= sizeEnterT); i++) {
+				if ((i != destinationIndex) && (edgeWeights[destinationIndex][i] != 0)) {
+					edgeIDs[destinationIndex][i] = 0;
+					edgeWeights[destinationIndex][i] = 0;
+					numOfEdges--;
+					sizeLeaveT--;
+				}
+			}
 
-		// }
+		}
 
 		// for linux
 		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
