@@ -44,7 +44,7 @@ public final class Route {
 
 	// conditions
 	public static int sourceIndex = 0;
-	private static int destinationIndex = 0;
+	public static int destinationIndex = 0;
 	private static List<Integer> includingSet = new ArrayList<Integer>();
 	private static List<Integer> includingSet2 = new ArrayList<Integer>();
 
@@ -68,7 +68,7 @@ public final class Route {
 			int edgeID = Integer.parseInt(line[0]);
 			int sID = Integer.parseInt(line[1]);
 			int dID = Integer.parseInt(line[2]);
-			int weight = Integer.parseInt(line[3].trim());
+			int weight = Integer.parseInt(line[3]);
 
 			// remove self-loop
 			if (sID == dID) {
@@ -134,27 +134,51 @@ public final class Route {
 			FileUtil.write(resultFilePath, "NA", false);
 			return;
 		}
-		// if graph is large, call glpk solver
-		// remove all edges to s, and all edges from t
-		for (int i = 0; i < numOfVertices; i++) {
-			if (edgeWeights[i][sourceIndex] != 0) {
-				edgeIDs[i][sourceIndex] = 0;
-				edgeWeights[i][sourceIndex] = 0;
-				numOfEdges--;
-			}
-			if (edgeWeights[destinationIndex][i] != 0) {
-				edgeIDs[destinationIndex][i] = 0;
-				edgeWeights[destinationIndex][i] = 0;
-				numOfEdges--;
-			}
-		}
+
+		// add edges to s, and all edges from t
+		// if (includingSet.size() != 20) {
+	    int sizeLeaveS = neighbors.get(sourceIndex).size();
+	    int sizeLeaveT = neighbors.get(destinationIndex).size();
+
+	    int sizeEnterS = 0;
+	    int sizeEnterT = 0;
+	    for (int i = 0; i < numOfVertices; i++) {
+	      if (edgeWeights[i][sourceIndex] != 0) {
+	        sizeEnterS++;
+	      }
+	    }
+	    for (int i = 0; i < numOfVertices; i++) {
+	      if (edgeWeights[i][destinationIndex] != 0) {
+	        sizeEnterT++;
+	      }
+	    }
+
+	    for (int i = 0; (i < numOfVertices) && (sizeEnterS >= sizeLeaveS); i++) {
+	      if ((i != sourceIndex) && (edgeWeights[i][sourceIndex] != 0)) {
+	        edgeIDs[i][sourceIndex] = 0;
+	        edgeWeights[i][sourceIndex] = 0;
+	        numOfEdges -= 1;
+	        sizeEnterS--;
+	      }
+	    }
+
+	    for (int i = 0; (i < numOfVertices) && (sizeLeaveT >= sizeEnterT); i++) {
+	      if ((i != destinationIndex) && (edgeWeights[destinationIndex][i] != 0)) {
+	        edgeIDs[destinationIndex][i] = 0;
+	        edgeWeights[destinationIndex][i] = 0;
+	        numOfEdges -= 1;
+	        sizeLeaveT--;
+	      }
+	    }
+
+		// }
 
 		// for linux
-		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
-		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
 		// for windows
-		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
-		fdata = System.getProperty("user.dir") + "/mod/data.dat";
+		// fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		// fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
 		String text = "data;\n\nparam n := " + numOfVertices + ";\nparam s := " + sourceIndex + ";\nparam t := "

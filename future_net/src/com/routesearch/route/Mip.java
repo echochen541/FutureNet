@@ -11,6 +11,8 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 	private String fdata;
 	private int numOfEdges;
 	private glp_prob lp;
+	private static int[][] edges;
+	private static double minCost = Double.MAX_VALUE;
 
 	public Mip(String fname, String fdata, int numOfEdges) {
 		this.fname = fname;
@@ -79,6 +81,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 	}
 
 	private static List<CostV> write_mip_solution(glp_prob lp, int numOfEdges) {
+		edges = new int[Route.numOfVertices][Route.numOfVertices];
 		int i;
 		int n;
 		String name;
@@ -89,19 +92,28 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		name = GLPK.glp_get_obj_name(lp);
 		val = GLPK.glp_mip_obj_val(lp);
 		cost = val;
-		n = GLPK.glp_get_num_cols(lp);
 
-		for (i = numOfEdges + 1; i <= n; i++) {
+		if (cost == minCost)
+			System.exit(0);
+
+		if (cost < minCost)
+			minCost = cost;
+
+		n = GLPK.glp_get_num_cols(lp);
+		System.out.println(cost);
+
+		System.out.println(Route.sourceIndex + "--------------->" + Route.destinationIndex);
+
+		for (i = 1; i <= numOfEdges; i++) {
 			name = GLPK.glp_get_col_name(lp, i);
 			val = GLPK.glp_mip_col_val(lp, i);
+			int start = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf(",")));
+			int end = Integer.parseInt(name.substring(name.indexOf(",") + 1, name.indexOf("]")));
 
-			if (val > 0.0 && val <= cost + 0.5) {
-				int v = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf("]")));
-				cvs.add(new CostV(v, val));
+			if (val == 1.0) {
+				edges[start][end] = 1;
 			}
 		}
-
-		Collections.sort(cvs);
 		return cvs;
 	}
 
@@ -123,14 +135,18 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 			StringBuffer resultSb = new StringBuffer();
 
 			int pre = Route.sourceIndex;
-			for (int i = 0; i < cvs.size(); i++) {
-				CostV cv = (CostV) cvs.get(i);
-				if (Route.edgeWeights[pre][cv.v] > 0) {
-					resultSb.append(Route.edgeIDs[pre][cv.v] + "|");
-					pre = cv.v;
+
+			while (pre != Route.destinationIndex) {
+				for (int i = 0; i < Route.numOfVertices; i++) {
+					if (edges[pre][i] == 1) {
+						resultSb.append(Route.edgeIDs[pre][i] + "|");
+						pre = i;
+						break;
+					}
 				}
 			}
 			resultSb.deleteCharAt(resultSb.length() - 1);
+			System.out.println(resultSb.toString());
 			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
 		}
 	}
