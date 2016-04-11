@@ -141,7 +141,7 @@ public final class Route {
 			int sizeLeaveT = neighbors.get(destinationIndex).size();
 			int sizeEnterS = 0;
 			int sizeEnterT = 0;
-			
+
 			for (int i = 0; i < numOfVertices; i++) {
 				if (edgeWeights[i][sourceIndex] != 0) {
 					sizeEnterS++;
@@ -187,7 +187,7 @@ public final class Route {
 		text += ";\n";
 		FileUtil.write(fdata, text, true);
 
-		text = "param : A : c :=\n";
+		text = "param : E : c :=\n";
 		FileUtil.write(fdata, text, true);
 
 		for (int i = 0; i < numOfVertices; i++) {
