@@ -135,42 +135,37 @@ public final class Route {
 			return;
 		}
 
-		// add edges to s, and all edges from t
-		if (includingSet.size() != 20) {
+		// remove edges entering s, remove edges leaving t
+		if (includingSet.size() >= 30) {
 			int sizeLeaveS = neighbors.get(sourceIndex).size();
 			int sizeLeaveT = neighbors.get(destinationIndex).size();
-
 			int sizeEnterS = 0;
 			int sizeEnterT = 0;
+			
 			for (int i = 0; i < numOfVertices; i++) {
 				if (edgeWeights[i][sourceIndex] != 0) {
 					sizeEnterS++;
 				}
-			}
-			for (int i = 0; i < numOfVertices; i++) {
 				if (edgeWeights[i][destinationIndex] != 0) {
 					sizeEnterT++;
 				}
 			}
 
-			for (int i = 0; (i < numOfVertices) && (sizeEnterS >= sizeLeaveS); i++) {
-				if ((i != sourceIndex) && (edgeWeights[i][sourceIndex] != 0)) {
+			for (int i = 0; i < numOfVertices; i++) {
+				if ((sizeEnterS >= sizeLeaveS) && (i != sourceIndex) && (edgeWeights[i][sourceIndex] != 0)) {
 					edgeIDs[i][sourceIndex] = 0;
 					edgeWeights[i][sourceIndex] = 0;
 					numOfEdges--;
 					sizeEnterS--;
 				}
-			}
 
-			for (int i = 0; (i < numOfVertices) && (sizeLeaveT >= sizeEnterT); i++) {
-				if ((i != destinationIndex) && (edgeWeights[destinationIndex][i] != 0)) {
+				if ((sizeLeaveT >= sizeEnterT) && (i != destinationIndex) && (edgeWeights[destinationIndex][i] != 0)) {
 					edgeIDs[destinationIndex][i] = 0;
 					edgeWeights[destinationIndex][i] = 0;
 					numOfEdges--;
 					sizeLeaveT--;
 				}
 			}
-
 		}
 
 		// for linux

@@ -1,6 +1,5 @@
 package com.routesearch.route;
 
-import java.util.*;
 import org.gnu.glpk.*;
 
 import com.filetool.util.FileUtil;
@@ -80,14 +79,13 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		return;
 	}
 
-	private static List<CostV> write_mip_solution(glp_prob lp, int numOfEdges) {
+	private static void write_mip_solution(glp_prob lp, int numOfEdges) {
 		edges = new int[Route.numOfVertices][Route.numOfVertices];
-		int i;
-		int n;
+		// int n;
 		String name;
 		double val;
 		double cost;
-		List<CostV> cvs = new ArrayList<CostV>();
+		// List<CostV> cvs = new ArrayList<CostV>();
 
 		name = GLPK.glp_get_obj_name(lp);
 		val = GLPK.glp_mip_obj_val(lp);
@@ -99,12 +97,13 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		if (cost < minCost)
 			minCost = cost;
 
-		n = GLPK.glp_get_num_cols(lp);
-		System.out.println(cost);
+		// n = GLPK.glp_get_num_cols(lp);
+		// System.out.println(cost);
 
-		System.out.println(Route.sourceIndex + "--------------->" + Route.destinationIndex);
+		// System.out.println(Route.sourceIndex + "--------------->" +
+		// Route.destinationIndex);
 
-		for (i = 1; i <= numOfEdges; i++) {
+		for (int i = 1; i <= numOfEdges; i++) {
 			name = GLPK.glp_get_col_name(lp, i);
 			val = GLPK.glp_mip_col_val(lp, i);
 			int start = Integer.parseInt(name.substring(name.indexOf("[") + 1, name.indexOf(",")));
@@ -114,7 +113,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 				edges[start][end] = 1;
 			}
 		}
-		return cvs;
+		return;
 	}
 
 	@Override
@@ -130,7 +129,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 		if (reason == GLPKConstants.GLP_IBINGO) {
 			// System.out.println("Better solution found");
 			// write answer to result.csv
-			List<CostV> cvs = write_mip_solution(lp, numOfEdges);
+			write_mip_solution(lp, numOfEdges);
 
 			StringBuffer resultSb = new StringBuffer();
 
@@ -146,7 +145,7 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 				}
 			}
 			resultSb.deleteCharAt(resultSb.length() - 1);
-			System.out.println(resultSb.toString());
+			// System.out.println(resultSb.toString());
 			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
 		}
 	}

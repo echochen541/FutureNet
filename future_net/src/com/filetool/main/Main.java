@@ -25,8 +25,8 @@ public class Main {
 		String graphContent = FileUtil.read(graphFilePath, null);
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
-		LogUtil.printLog("begin");
+		// LogUtil.printLog("begin");
 		Route.searchRoute(graphContent, conditionContent, resultFilePath);
-		LogUtil.printLog("end");
+		// LogUtil.printLog("end");
 	}
 }
