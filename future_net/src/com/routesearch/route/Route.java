@@ -116,6 +116,8 @@ public final class Route {
 			includingSet2.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
+		
+		
 		// if the graph is small, call dsfSearch
 		numOfVertices = neighbors.size();
 		if (numOfVertices <= 45 && includingSet.size() <= 6) {
