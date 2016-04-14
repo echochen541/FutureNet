@@ -8,22 +8,23 @@ import com.filetool.util.FileUtil;
 
 public class CaseGenerator {
 
-	public static void generate(int numOfvertices, int minOutDegree, int numOfCondition, String directory) {
+	public static void generate(int numOfVertices, int minOutDegree, int maxOutDegree, int maxWeight,
+			int numOfCondition, String directory) {
 		File dir = new File(System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/" + directory);
 		dir.mkdir();
 		String FILE_PATH = System.getProperty("user.dir").replaceAll("\\\\", "/") + "/test/" + directory + "/";
 
 		int edgeIndex = 0, outDegree = 0, weight = 0, dst = 0;
-		for (int i = 0; i < numOfvertices; i++) {
-			outDegree = minOutDegree + (int) (Math.random() * (9 - minOutDegree));
+		for (int i = 0; i < numOfVertices; i++) {
+			outDegree = minOutDegree + (int) (Math.random() * (maxOutDegree + 1 - minOutDegree));
 			for (int j = 0; j < outDegree; j++) {
-				weight = (int) (Math.random() * 20 + 1);
-				dst = (int) (Math.random() * numOfvertices);
+				weight = (int) (Math.random() * maxWeight + 1);
+				dst = (int) (Math.random() * numOfVertices);
 
 				if (dst == i) {
 					if (i == 0)
 						dst++;
-					if (i == 599)
+					if (i == numOfVertices - 1)
 						dst--;
 				}
 
@@ -37,20 +38,20 @@ public class CaseGenerator {
 			}
 		}
 
-		int start = (int) (Math.random() * numOfvertices);
-		int end = (int) (Math.random() * numOfvertices);
+		int start = (int) (Math.random() * numOfVertices);
+		int end = (int) (Math.random() * numOfVertices);
 
 		String condition = "";
 		List<Integer> l = new ArrayList<Integer>();
 		int n;
 		for (int k = 0; k < numOfCondition; k++) {
 			if (k == 0) {
-				n = (int) (Math.random() * numOfvertices);
+				n = (int) (Math.random() * numOfVertices);
 				l.add(n);
 				condition += n;
 			} else {
 				do {
-					n = (int) (Math.random() * numOfvertices);
+					n = (int) (Math.random() * numOfVertices);
 				} while (l.contains(n));
 				l.add(n);
 				condition = condition + "|" + n;

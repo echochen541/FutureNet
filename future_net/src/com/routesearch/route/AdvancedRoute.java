@@ -11,8 +11,8 @@ import java.util.*;
 
 public final class AdvancedRoute {
 	// attributes of max graph
-	private static int MAX_VERTICES = 600;
-	private static int MAX_WEIGHT = 20;
+	private static int MAX_VERTICES = 2000;
+	private static int MAX_WEIGHT = 100;
 	private static int INFINITE = MAX_VERTICES * MAX_WEIGHT;
 
 	// information of graph
@@ -59,6 +59,7 @@ public final class AdvancedRoute {
 
 		// Step 5: ACO todo by yangjiacheng
 		List<Integer> path = getShortestPath(s, t);
+		System.out.println(distances[s][t]);
 		System.out.println(s + "-->" + t + path);
 		return;
 	}
