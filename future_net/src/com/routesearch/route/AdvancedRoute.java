@@ -105,7 +105,7 @@ public final class AdvancedRoute {
 		}
 	}
 
-	// Step 2: extract s, t and specifiedSet
+	/** extract s, t and specifiedSet */
 	public static void extractCondition(String condition) {
 		String[] demand = condition.split(",|\\n");
 		s = Integer.parseInt(demand[0]);
@@ -156,6 +156,7 @@ public final class AdvancedRoute {
 		return path;
 	}
 
+	/** helper method of getShortestPath */
 	public static void getShortestPath2(int i, int j, List<Integer> path) {
 		int k = paths[i][j];
 		if (k == -1) {
