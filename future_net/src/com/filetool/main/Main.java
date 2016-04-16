@@ -13,7 +13,6 @@ import com.routesearch.route.Route;
  * @version v1.0
  */
 public class Main {
-
 	public static void main(String[] args) {
 		// String graphFilePath = args[0];
 		// String conditionFilePath = args[1];
