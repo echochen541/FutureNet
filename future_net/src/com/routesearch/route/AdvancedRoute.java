@@ -31,6 +31,34 @@ public final class AdvancedRoute {
 	private static List<Integer> specifiedSet = new ArrayList<Integer>();
 	// private static List<Integer> specifiedSet2 = new ArrayList<Integer>();
 
+	/* parameters used for ant colony optimization */
+	// original amount of trail
+	private static double c = 1.0;
+	// constant of evaporation
+	private static double evaporation = 0.5;
+	// pheromone importance constant
+	private static double alpha = 1;
+	// city distance importance constant
+	private static double beta = 5;
+	// pheromone quantity constant
+	private static double Q = 500;
+	// probability of pure random selection of the next town
+	private static double pr = 0.01;
+	// number of vertex(for this problem, n is the number of elements in the
+	// specifiedSet).
+	private static int n;
+	// number of ants
+	private static int m;
+	private static double antNumFactor = 1.0;
+	private static int maxIteration = 200;
+	private static double trails[][];
+	private static Ant[] ants = null;
+	private static int currentIndex = 0;
+	private static Random random = new Random();
+
+	private static List<Integer> shortestPath;
+	private static int shortestPathLength = 0;
+
 	public static void searchRoute(String graphContent, String condition) {
 		// Step 1: construct the weighted directed graph
 		constructGraph(graphContent);
@@ -58,9 +86,17 @@ public final class AdvancedRoute {
 		}
 
 		// Step 5: ACO todo by yangjiacheng
-		List<Integer> path = getShortestPath(s, t);
-		System.out.println(distances[s][t]);
-		System.out.println(s + "-->" + t + path);
+		// List<Integer> path = getShortestPath(s, t);
+		// System.out.println(distances[s][t]);
+		// System.out.println(s + "-->" + t + path);
+		antColony();
+		// System.out.println(s + "-->" + t + shortestPath);
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < shortestPath.size() - 1; i++) {
+			sb.append(edgeIDs[shortestPath.get(i)][shortestPath.get(i + 1)] + "|");
+		}
+		System.out.println(shortestPathLength + " " + sb.deleteCharAt(sb.length() - 1).toString());
+		// System.out.println("Shortest path length is: " + shortestPathLength);
 		return;
 	}
 
@@ -149,10 +185,9 @@ public final class AdvancedRoute {
 
 	/** get the shortest path from i to j */
 	public static List<Integer> getShortestPath(int s, int t) {
-		List<Integer> path = new ArrayList<Integer>();
+		List<Integer> path = new LinkedList<Integer>();
 		path.add(s);
 		getShortestPath2(s, t, path);
-		path.add(t);
 		return path;
 	}
 
@@ -167,5 +202,216 @@ public final class AdvancedRoute {
 			path.add(k);
 			getShortestPath2(k, j, path);
 		}
+	}
+
+	/**
+	 * Get the shortest path from s to t using ant colony algorithm.
+	 * 
+	 */
+	public static void antColony() {
+		// Initialization
+		n = specifiedSet.size();
+		m = (int) (n * antNumFactor);
+		System.out.println("n:" + n + " m:" + m);
+		ants = new Ant[m];
+		shortestPath = new LinkedList<Integer>();
+		trails = new double[n][n];
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (i == j) {
+					trails[i][j] = 0;
+				} else if (distances[specifiedSet.get(i)][specifiedSet.get(j)] != INFINITE) {
+					trails[i][j] = c;
+				} else {
+					trails[i][j] = 0;
+				}
+			}
+		}
+		int iteration = 0;
+		while (iteration < maxIteration) {
+			setupAnts();
+			moveAnts();
+			updateTrails();
+			updateShortest();
+			iteration++;
+		}
+	}
+
+	public static class Ant {
+		public int tour[];
+		public boolean visited[];
+		public double probs[];
+
+		public Ant() {
+			tour = new int[n];
+			visited = new boolean[n];
+			probs = new double[n];
+		}
+
+		public void visitVertex(int vertex) {
+			tour[currentIndex + 1] = vertex;
+			visited[vertex] = true;
+		}
+
+		public int tourLength() {
+			if (distances[s][specifiedSet.get(tour[0])] == INFINITE
+					|| distances[specifiedSet.get(tour[n - 1])][t] == INFINITE) {
+				return -1;
+			}
+			int length = distances[s][specifiedSet.get(tour[0])];
+			for (int i = 0; i < n - 1; i++) {
+				length += distances[specifiedSet.get(tour[i])][specifiedSet.get(tour[i + 1])];
+			}
+			length += distances[specifiedSet.get(tour[n - 1])][t];
+			return length;
+		}
+	}
+
+	/**
+	 * Set each ants with a random start city.
+	 */
+	private static void setupAnts() {
+		currentIndex = -1;
+		for (int i = 0; i < m; i++) {
+			ants[i] = new Ant();
+			ants[i].visitVertex(random.nextInt(n));
+		}
+		currentIndex++;
+	}
+
+	/**
+	 * Move ants to next vertex.
+	 */
+	private static void moveAnts() {
+		while (currentIndex < n - 1) {
+			List<Integer> toBeRemoved = new LinkedList<Integer>();
+			int i = 0;
+
+			for (Ant a : ants) {
+				if (a != null) {
+					int next = selectNextVertex(a);
+					if (next < 0) {
+						toBeRemoved.add(i);
+					} else {
+						a.visitVertex(next);
+					}
+				}
+				i++;
+			}
+			for (int j : toBeRemoved) {
+				ants[j] = null;
+			}
+			toBeRemoved.clear();
+			currentIndex++;
+		}
+	}
+
+	/**
+	 * Select next vertex for the given ant a to move to.
+	 * 
+	 * @param a
+	 * @return next vertex; -1 if cannot find such a next vertex.
+	 */
+	private static int selectNextVertex(Ant a) {
+		if (random.nextDouble() < pr) {
+			int t = random.nextInt(n - currentIndex);
+			int j = -1;
+			for (int i = 0; i < n; i++) {
+				int dis = distances[a.tour[currentIndex]][specifiedSet.get(i)];
+				if (!a.visited[i] && dis != INFINITE && dis > 0) {
+					j++;
+				}
+				if (j == t) {
+					return i;
+				}
+			}
+		}
+
+		probTo(a);
+		double r = random.nextDouble();
+		double total = 0;
+		for (int k = 0; k < n; k++) {
+			total += a.probs[k];
+			if (total >= r) {
+				return k;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Calculate the probability of the given ant moving to each town and stores
+	 * it in to the probs array.
+	 * 
+	 * @param ant
+	 */
+	private static void probTo(Ant ant) {
+		int i = ant.tour[currentIndex];
+		double denom = 0.0;
+
+		for (int k = 0; k < n; k++) {
+			if (!ant.visited[k] && distances[specifiedSet.get(i)][specifiedSet.get(k)] != INFINITE) {
+				denom += Math.pow(trails[i][k], alpha)
+						* Math.pow(1.0 / distances[specifiedSet.get(i)][specifiedSet.get(k)], beta);
+			}
+		}
+
+		for (int j = 0; j < n; j++) {
+			if (ant.visited[j] || distances[specifiedSet.get(i)][specifiedSet.get(j)] == INFINITE) {
+				ant.probs[j] = 0.0;
+			} else {
+				double numerator = Math.pow(trails[i][j], alpha)
+						* Math.pow(1.0 / distances[specifiedSet.get(i)][specifiedSet.get(j)], beta);
+				ant.probs[j] = numerator / denom;
+			}
+		}
+	}
+
+	/**
+	 * Update the trails information.
+	 */
+	private static void updateTrails() {
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				trails[i][j] *= evaporation;
+			}
+		}
+
+		for (Ant ant : ants) {
+			if (ant != null) {
+				int len = ant.tourLength();
+				if (len < 0) {
+					continue;
+				}
+				double contribution = Q / ant.tourLength();
+				for (int i = 0; i < n - 1; i++) {
+					trails[ant.tour[i]][ant.tour[i + 1]] += contribution;
+				}
+			}
+		}
+	}
+
+	private static void updateShortest() {
+		for (Ant ant : ants) {
+			if (ant != null && shortestPathLength == 0 && ant.tourLength() > 0) {
+				updateShortest(ant);
+			} else if (ant != null && shortestPathLength > 0 && ant.tourLength() < shortestPathLength) {
+				updateShortest(ant);
+			}
+		}
+	}
+
+	private static void updateShortest(Ant ant) {
+		shortestPath.clear();
+		int[] tour = ant.tour;
+		shortestPath.addAll(getShortestPath(s, specifiedSet.get(tour[0])));
+		int len = tour.length - 1;
+		for (int i = 0; i < len; i++) {
+			shortestPath.addAll(getShortestPath(specifiedSet.get(tour[i]), specifiedSet.get(tour[i + 1])));
+		}
+		shortestPath.addAll(getShortestPath(specifiedSet.get(tour[n - 1]), t));
+		shortestPath.add(t);
+		shortestPathLength = ant.tourLength();
 	}
 }

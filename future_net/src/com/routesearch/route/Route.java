@@ -116,8 +116,6 @@ public final class Route {
 			includingSet2.add(vertexID2Index.get(Integer.parseInt(v)));
 		}
 
-		
-		
 		// if the graph is small, call dsfSearch
 		numOfVertices = neighbors.size();
 		if (numOfVertices <= 45 && includingSet.size() <= 6) {
@@ -171,11 +169,11 @@ public final class Route {
 		}
 
 		// for linux
-		fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
-		fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
+		// fname = FileUtil.getAppPath(Main.class) + "/mod/ktsp.mod";
+		// fdata = FileUtil.getAppPath(Main.class) + "/mod/data.dat";
 		// for windows
-		// fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
-		// fdata = System.getProperty("user.dir") + "/mod/data.dat";
+		fname = System.getProperty("user.dir") + "/mod/ktsp.mod";
+		fdata = System.getProperty("user.dir") + "/mod/data.dat";
 
 		// write data.bat
 		String text = "data;\n\nparam n := " + numOfVertices + ";\nparam s := " + sourceIndex + ";\nparam t := "

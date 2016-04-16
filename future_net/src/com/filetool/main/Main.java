@@ -18,15 +18,15 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = "test/case8/topo.csv";
-		String conditionFilePath = "test/case8/demand.csv";
-		String resultFilePath = "test/case8/result.csv";
+		String graphFilePath = "test/case4/topo.csv";
+		String conditionFilePath = "test/case4/demand.csv";
+		String resultFilePath = "test/case4/result.csv";
 
 		String graphContent = FileUtil.read(graphFilePath, null);
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		LogUtil.printLog("begin");
-		// Route.searchRoute(graphContent, conditionContent, resultFilePath);
+		Route.searchRoute(graphContent, conditionContent, resultFilePath);
 		AdvancedRoute.searchRoute(graphContent, conditionContent);
 		LogUtil.printLog("end");
 	}
