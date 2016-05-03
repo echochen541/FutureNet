@@ -43,14 +43,15 @@ public final class AdvancedRoute {
 	// pheromone quantity constant
 	private static double Q = 500;
 	// probability of pure random selection of the next town
-	private static double pr = 0.01;
+	private static double pr = 0.1;
 	// number of vertex(for this problem, n is the number of elements in the
 	// specifiedSet).
 	private static int n;
 	// number of ants
 	private static int m;
-	private static double antNumFactor = 1.0;
-	private static int maxIteration = 200;
+	private static double antNumFactor = 5;
+	private static int maxIteration = 500;
+	private static int iteration = 0;
 	private static double trails[][];
 	private static Ant[] ants = null;
 	private static int currentIndex = 0;
@@ -217,18 +218,27 @@ public final class AdvancedRoute {
 		shortestPath = new LinkedList<Integer>();
 		trails = new double[n][n];
 
+		// for(int a = 0; a< n;a++){
+		// for (int b = 0; b < n; b++) {
+		// System.out.print(distances[specifiedSet.get(a)][specifiedSet.get(b)]+",
+		// ");
+		// }
+		// System.out.println();
+		// }
+
 		for (int i = 0; i < n; i++) {
+			int realI = specifiedSet.get(i);
 			for (int j = 0; j < n; j++) {
 				if (i == j) {
 					trails[i][j] = 0;
-				} else if (distances[specifiedSet.get(i)][specifiedSet.get(j)] != INFINITE) {
+				} else if (distances[realI][specifiedSet.get(j)] != INFINITE) {
 					trails[i][j] = c;
 				} else {
 					trails[i][j] = 0;
 				}
 			}
 		}
-		int iteration = 0;
+		iteration = 0;
 		while (iteration < maxIteration) {
 			setupAnts();
 			moveAnts();
@@ -242,11 +252,13 @@ public final class AdvancedRoute {
 		public int tour[];
 		public boolean visited[];
 		public double probs[];
+		public int tourLength;
 
 		public Ant() {
 			tour = new int[n];
 			visited = new boolean[n];
 			probs = new double[n];
+			tourLength = 0;
 		}
 
 		public void visitVertex(int vertex) {
@@ -254,17 +266,16 @@ public final class AdvancedRoute {
 			visited[vertex] = true;
 		}
 
-		public int tourLength() {
-			if (distances[s][specifiedSet.get(tour[0])] == INFINITE
-					|| distances[specifiedSet.get(tour[n - 1])][t] == INFINITE) {
-				return -1;
+		public void calTourLength() {
+			tourLength = distances[s][specifiedSet.get(tour[0])];
+			int last = distances[specifiedSet.get(tour[n - 1])][t];
+			if (tourLength == INFINITE || last == INFINITE) {
+				tourLength = -1;
 			}
-			int length = distances[s][specifiedSet.get(tour[0])];
 			for (int i = 0; i < n - 1; i++) {
-				length += distances[specifiedSet.get(tour[i])][specifiedSet.get(tour[i + 1])];
+				tourLength += distances[specifiedSet.get(tour[i])][specifiedSet.get(tour[i + 1])];
 			}
-			length += distances[specifiedSet.get(tour[n - 1])][t];
-			return length;
+			tourLength += last;
 		}
 	}
 
@@ -317,8 +328,9 @@ public final class AdvancedRoute {
 		if (random.nextDouble() < pr) {
 			int t = random.nextInt(n - currentIndex);
 			int j = -1;
+			int realCur = specifiedSet.get(a.tour[currentIndex]);
 			for (int i = 0; i < n; i++) {
-				int dis = distances[a.tour[currentIndex]][specifiedSet.get(i)];
+				int dis = distances[realCur][specifiedSet.get(i)];
 				if (!a.visited[i] && dis != INFINITE && dis > 0) {
 					j++;
 				}
@@ -349,21 +361,22 @@ public final class AdvancedRoute {
 	private static void probTo(Ant ant) {
 		int i = ant.tour[currentIndex];
 		double denom = 0.0;
+		double[] numerators = new double[n];
+		int realI = specifiedSet.get(i);
 
 		for (int k = 0; k < n; k++) {
-			if (!ant.visited[k] && distances[specifiedSet.get(i)][specifiedSet.get(k)] != INFINITE) {
-				denom += Math.pow(trails[i][k], alpha)
-						* Math.pow(1.0 / distances[specifiedSet.get(i)][specifiedSet.get(k)], beta);
+			int realK = specifiedSet.get(k);
+			if (!ant.visited[k] && distances[realI][realK] != INFINITE) {
+				numerators[k] = Math.pow(trails[i][k], alpha) * Math.pow(1.0 / distances[realI][realK], beta);
+				denom += numerators[k];
 			}
 		}
 
 		for (int j = 0; j < n; j++) {
-			if (ant.visited[j] || distances[specifiedSet.get(i)][specifiedSet.get(j)] == INFINITE) {
-				ant.probs[j] = 0.0;
+			if (numerators[j] > 0) {
+				ant.probs[j] = numerators[j] / denom;
 			} else {
-				double numerator = Math.pow(trails[i][j], alpha)
-						* Math.pow(1.0 / distances[specifiedSet.get(i)][specifiedSet.get(j)], beta);
-				ant.probs[j] = numerator / denom;
+				ant.probs[j] = 0.0;
 			}
 		}
 	}
@@ -380,11 +393,12 @@ public final class AdvancedRoute {
 
 		for (Ant ant : ants) {
 			if (ant != null) {
-				int len = ant.tourLength();
-				if (len < 0) {
+				ant.calTourLength();
+				if (ant.tourLength <= 0) {
 					continue;
 				}
-				double contribution = Q / ant.tourLength();
+
+				double contribution = Q / ant.tourLength;
 				for (int i = 0; i < n - 1; i++) {
 					trails[ant.tour[i]][ant.tour[i + 1]] += contribution;
 				}
@@ -394,10 +408,12 @@ public final class AdvancedRoute {
 
 	private static void updateShortest() {
 		for (Ant ant : ants) {
-			if (ant != null && shortestPathLength == 0 && ant.tourLength() > 0) {
-				updateShortest(ant);
-			} else if (ant != null && shortestPathLength > 0 && ant.tourLength() < shortestPathLength) {
-				updateShortest(ant);
+			if (ant != null) {
+				if ((shortestPathLength == 0 && ant.tourLength > 0)
+						|| (shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
+					updateShortest(ant);
+				}
+
 			}
 		}
 	}
@@ -405,6 +421,13 @@ public final class AdvancedRoute {
 	private static void updateShortest(Ant ant) {
 		shortestPath.clear();
 		int[] tour = ant.tour;
+
+		// System.out.println(iteration + ": " + ant.tourLength + ":");
+		// for (int i = 0; i < tour.length; i++) {
+		// System.out.print(specifiedSet.get(tour[i]) + ", ");
+		// }
+		// System.out.println();
+
 		shortestPath.addAll(getShortestPath(s, specifiedSet.get(tour[0])));
 		int len = tour.length - 1;
 		for (int i = 0; i < len; i++) {
@@ -412,6 +435,6 @@ public final class AdvancedRoute {
 		}
 		shortestPath.addAll(getShortestPath(specifiedSet.get(tour[n - 1]), t));
 		shortestPath.add(t);
-		shortestPathLength = ant.tourLength();
+		shortestPathLength = ant.tourLength;
 	}
 }
