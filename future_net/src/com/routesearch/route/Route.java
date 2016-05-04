@@ -35,7 +35,8 @@ class CostV implements Comparable<CostV> {
 
 public final class Route {
 	// attributes of graph
-	private static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	public static Map<Integer, Integer> vertexID2Index = new HashMap<Integer, Integer>();
+	public static Map<Integer, Integer> index2VertexID = new HashMap<Integer, Integer>();
 	private static List<List<Integer>> neighbors = new ArrayList<List<Integer>>();
 	public static int[][] edgeIDs = new int[600][600];
 	public static int[][] edgeWeights = new int[600][600];
@@ -45,7 +46,7 @@ public final class Route {
 	// conditions
 	public static int sourceIndex = 0;
 	public static int destinationIndex = 0;
-	private static List<Integer> includingSet = new ArrayList<Integer>();
+	public static List<Integer> includingSet = new ArrayList<Integer>();
 	private static List<Integer> includingSet2 = new ArrayList<Integer>();
 
 	// information of search
@@ -76,17 +77,20 @@ public final class Route {
 					index++;
 					neighbors.add(new ArrayList<Integer>());
 					vertexID2Index.put(sID, index);
+					index2VertexID.put(index, sID);
 				}
 			} else {
 				if (!vertexID2Index.containsKey(sID)) {
 					index++;
 					neighbors.add(new ArrayList<Integer>());
 					vertexID2Index.put(sID, index);
+					index2VertexID.put(index, sID);
 				}
 				if (!vertexID2Index.containsKey(dID)) {
 					index++;
 					neighbors.add(new ArrayList<Integer>());
 					vertexID2Index.put(dID, index);
+					index2VertexID.put(index, dID);
 				}
 
 				int sIndex = vertexID2Index.get(sID);
@@ -129,6 +133,7 @@ public final class Route {
 			// Step 4: form result
 			if (minPath.size() != 0) {
 				FileUtil.write(resultFilePath, formResult(), false);
+				System.out.println(minCost + ": " + formResult());
 				return;
 			}
 			FileUtil.write(resultFilePath, "NA", false);

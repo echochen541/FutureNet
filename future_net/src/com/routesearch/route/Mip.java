@@ -132,6 +132,8 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 			write_mip_solution(lp, numOfEdges);
 
 			StringBuffer resultSb = new StringBuffer();
+			StringBuffer sb = new StringBuffer();
+			sb.append(Route.index2VertexID.get(Route.sourceIndex));
 
 			int pre = Route.sourceIndex;
 
@@ -139,13 +141,18 @@ public class Mip implements GlpkCallbackListener, GlpkTerminalListener {
 				for (int i = 0; i < Route.numOfVertices; i++) {
 					if (edges[pre][i] == 1) {
 						resultSb.append(Route.edgeIDs[pre][i] + "|");
+						if (Route.includingSet.contains(i))
+							sb.append("\n-->(" + Route.index2VertexID.get(i) + ")");
+						else
+							sb.append("-->" + Route.index2VertexID.get(i));
 						pre = i;
 						break;
 					}
 				}
 			}
 			resultSb.deleteCharAt(resultSb.length() - 1);
-			System.out.println((int) minCost + " " + resultSb.toString());
+			System.out.println((int) minCost + ": " + resultSb.toString());
+			System.out.println(sb.toString());
 			FileUtil.write(Route.resultFilePath, resultSb.toString(), false);
 		}
 	}

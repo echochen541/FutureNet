@@ -50,7 +50,7 @@ public final class AdvancedRoute {
 	// number of ants
 	private static int m;
 	private static double antNumFactor = 1.0;
-	private static int maxIteration = 200;
+	private static int maxIteration = 500;
 	private static double trails[][];
 	private static Ant[] ants = null;
 	private static int currentIndex = 0;
@@ -86,16 +86,74 @@ public final class AdvancedRoute {
 		}
 
 		// Step 5: ACO todo by yangjiacheng
-		// List<Integer> path = getShortestPath(s, t);
-		// System.out.println(distances[s][t]);
-		// System.out.println(s + "-->" + t + path);
+		List<Integer> path = getShortestPath(134, 66);
+		System.out.println(134 + "-->" + 66 + path);
+
+		path = getShortestPath(66, 255);
+		System.out.println(66 + "-->" + 255 + path);
+
+		path = getShortestPath(255, 85);
+		System.out.println(255 + "-->" + 85 + path);
+
+		path = getShortestPath(123, 15);
+		System.out.println(123 + "-->" + 15 + path);
+
+		path = getShortestPath(15, 198);
+		System.out.println(15 + "-->" + 198 + path);
+
+		path = getShortestPath(198, 222);
+		System.out.println(198 + "-->" + 222 + path);
+
+		path = getShortestPath(222, 27);
+		System.out.println(222 + "-->" + 27 + path);
+
+		path = getShortestPath(27, 236);
+		System.out.println(27 + "-->" + 236 + path);
+
+		path = getShortestPath(236, 79);
+		System.out.println(236 + "-->" + 79 + path);
+
+		path = getShortestPath(79, 258);
+		System.out.println(79 + "-->" + 258 + path);
+
+		path = getShortestPath(258, 77);
+		System.out.println(258 + "-->" + 77 + path);
+
+		path = getShortestPath(77, 233);
+		System.out.println(77 + "-->" + 233 + path);
+
+		path = getShortestPath(233, 238);
+		System.out.println(233 + "-->" + 238 + path);
+
+		path = getShortestPath(238, 55);
+		System.out.println(238 + "-->" + 55 + path);
+
+		path = getShortestPath(55, 22);
+		System.out.println(55 + "-->" + 22 + path);
+
+		path = getShortestPath(22, 156);
+		System.out.println(22 + "-->" + 156 + path);
+
+		path = getShortestPath(156, 33);
+		System.out.println(156 + "-->" + 33 + path);
+
+		path = getShortestPath(33, 87);
+		System.out.println(33 + "-->" + 87 + path);
+
 		antColony();
 		// System.out.println(s + "-->" + t + shortestPath);
 		StringBuffer sb = new StringBuffer();
+		StringBuffer sb2 = new StringBuffer();
+		sb2.append(shortestPath.get(0));
 		for (int i = 0; i < shortestPath.size() - 1; i++) {
 			sb.append(edgeIDs[shortestPath.get(i)][shortestPath.get(i + 1)] + "|");
+			if (specifiedSet.contains(shortestPath.get(i + 1)))
+				sb2.append("-->(" + shortestPath.get(i + 1) + ")");
+			else
+				sb2.append("-->" + shortestPath.get(i + 1));
 		}
-		System.out.println(shortestPathLength + " " + sb.deleteCharAt(sb.length() - 1).toString());
+		System.out.println(shortestPathLength + ": " + sb.deleteCharAt(sb.length() - 1).toString());
+		System.out.println(sb2.toString());
 		// System.out.println("Shortest path length is: " + shortestPathLength);
 		return;
 	}
@@ -188,6 +246,7 @@ public final class AdvancedRoute {
 		List<Integer> path = new LinkedList<Integer>();
 		path.add(s);
 		getShortestPath2(s, t, path);
+		// path.add(t);
 		return path;
 	}
 
@@ -364,6 +423,12 @@ public final class AdvancedRoute {
 				double numerator = Math.pow(trails[i][j], alpha)
 						* Math.pow(1.0 / distances[specifiedSet.get(i)][specifiedSet.get(j)], beta);
 				ant.probs[j] = numerator / denom;
+				if (specifiedSet.get(i) == 134) {
+					if (specifiedSet.get(j) == 77 || specifiedSet.get(j) == 66) {
+						// System.out.println(specifiedSet.get(j) + ":" +
+						// ant.probs[j]);
+					}
+				}
 			}
 		}
 	}
