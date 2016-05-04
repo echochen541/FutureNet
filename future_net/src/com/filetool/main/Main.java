@@ -17,6 +17,10 @@ public class Main {
 		// String graphFilePath = args[0];
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
+		
+//		String graphFilePath = "test/case4/topo.csv";
+//		String conditionFilePath = "test/case4/demand.csv";
+//		String resultFilePath = "test/case4/result.csv";
 
 		String graphFilePath = "test/case3/topo.csv";
 		String conditionFilePath = "test/case3/demand.csv";
@@ -26,7 +30,7 @@ public class Main {
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		LogUtil.printLog("begin");
-		Route.searchRoute(graphContent, conditionContent, resultFilePath);
+//		Route.searchRoute(graphContent, conditionContent, resultFilePath);
 		AdvancedRoute.searchRoute(graphContent, conditionContent);
 		LogUtil.printLog("end");
 	}
