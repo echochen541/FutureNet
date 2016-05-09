@@ -30,7 +30,7 @@ public class Main {
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		LogUtil.printLog("begin");
-//		Route.searchRoute(graphContent, conditionContent, resultFilePath);
+		Route.searchRoute(graphContent, conditionContent, resultFilePath);
 		AdvancedRoute.searchRoute(graphContent, conditionContent);
 		LogUtil.printLog("end");
 	}
