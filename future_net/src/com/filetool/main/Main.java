@@ -18,9 +18,9 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = "test/case4/topo.csv";
-		String conditionFilePath = "test/case4/demand.csv";
-		String resultFilePath = "test/case4/result.csv";
+		String graphFilePath = "test/case2/topo.csv";
+		String conditionFilePath = "test/case2/demand.csv";
+		String resultFilePath = "test/case2/result.csv";
 
 		// String graphFilePath = "test/case9/topo.csv";
 		// String conditionFilePath = "test/case9/demand.csv";
