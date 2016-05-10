@@ -97,17 +97,28 @@ public class AntColony {
 		public boolean visited[];
 		public double probs[];
 		public int tourLength;
+		public boolean actualVisited[];
 
 		public Ant() {
 			tour = new int[n];
 			visited = new boolean[n];
 			probs = new double[n];
 			tourLength = 0;
+			actualVisited = new boolean[g.numOfVertices];
 		}
 
 		public void visitVertex(int vertex) {
 			tour[currentIndex + 1] = vertex;
 			visited[vertex] = true;
+
+			int actualVertex = specifiedSet.get(vertex);
+			if (currentIndex != -1) {
+				List<Integer> list = g.getShortestPath(specifiedSet.get(tour[currentIndex]), actualVertex);
+				for (int v : list) {
+					actualVisited[v] = true;
+				}
+			}
+			actualVisited[actualVertex] = true;
 		}
 
 		public void calTourLength() {
@@ -209,8 +220,25 @@ public class AntColony {
 		int realI = specifiedSet.get(i);
 
 		for (int k = 0; k < n; k++) {
+			if (ant.visited[k]) {
+				continue;
+			}
+
 			int realK = specifiedSet.get(k);
-			if (!ant.visited[k] && g.distances[realI][realK] != g.INFINITE) {
+
+			// Check if selected k, there will be a loop.
+			boolean willHaveLoop = false;
+			List<Integer> addedVertices = g.getShortestPath(realI, realK);
+			addedVertices.remove(0);
+			addedVertices.add(realK);
+			for (int v : addedVertices) {
+				if (ant.actualVisited[v]) {
+					willHaveLoop = true;
+					break;
+				}
+			}
+
+			if (!willHaveLoop && g.distances[realI][realK] != g.INFINITE) {
 				numerators[k] = Math.pow(trails[i][k], alpha) * Math.pow(1.0 / g.distances[realI][realK], beta);
 				denom += numerators[k];
 			}
