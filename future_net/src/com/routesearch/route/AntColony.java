@@ -31,6 +31,7 @@ public class AntColony {
 	public static int n;
 	// number of ants
 	public static int m;
+	public static int[][] mVertices;
 
 	public double antNumFactor = 5;
 	public int maxIteration = 500;
@@ -62,6 +63,7 @@ public class AntColony {
 		iteration = 0;
 		trails = new double[n][n];
 		ants = new Ant[m];
+		mVertices = new int[m][g.numOfVertices];
 		currentIndex = 0;
 		random = new Random();
 		shortestPaths = new ArrayList<ArrayList<Integer>>();
@@ -130,7 +132,9 @@ public class AntColony {
 		currentIndex = -1;
 		for (int i = 0; i < m; i++) {
 			ants[i] = new Ant();
-			ants[i].visitVertex(random.nextInt(n));
+			int next = random.nextInt(n);
+			ants[i].visitVertex(next);
+			mVertices[i][n] = 1;
 		}
 		currentIndex++;
 	}
