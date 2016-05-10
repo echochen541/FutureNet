@@ -1,9 +1,12 @@
 package com.routesearch.route;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 public class AntColony {
 	public static Graph g;
@@ -34,7 +37,7 @@ public class AntColony {
 	public static int[][] mVertices;
 
 	public double antNumFactor = 5;
-	public int maxIteration = 500;
+	public int maxIteration = 200;
 	public int iteration = 0;
 	public static double trails[][];
 	public static Ant[] ants = null;
@@ -99,22 +102,53 @@ public class AntColony {
 		public boolean visited[];
 		public double probs[];
 		public int tourLength;
+		public boolean actualVisited[];
 
 		public Ant() {
 			tour = new int[n];
 			visited = new boolean[n];
 			probs = new double[n];
 			tourLength = 0;
+			actualVisited = new boolean[g.numOfVertices];
 		}
 
 		public void visitVertex(int vertex) {
 			tour[currentIndex + 1] = vertex;
 			visited[vertex] = true;
+
+			int actualVertex = specifiedSet.get(vertex);
+			List<Integer> list;
+			if (currentIndex == -1) {
+				list = g.getShortestPath(s, actualVertex);
+			} else {
+				list = g.getShortestPath(specifiedSet.get(tour[currentIndex]), actualVertex);
+			}
+			for (int v : list) {
+				actualVisited[v] = true;
+				int index = specifiedSet.indexOf(v);
+				if (index > -1) {
+					visited[index] = true;
+				}
+			}
+			actualVisited[actualVertex] = true;
 		}
 
 		public void calTourLength() {
+			// Check if the path from the last point to the end would introduce
+			// a loop.
+			int realLastVertex = specifiedSet.get(tour[n - 1]);
+			List<Integer> list = g.getShortestPath(realLastVertex, t);
+			list.remove(0);
+			list.add(t);
+			for (int v : list) {
+				if (actualVisited[v]) {
+					tourLength = -1;
+					return;
+				}
+			}
+
 			tourLength = g.distances[s][specifiedSet.get(tour[0])];
-			int last = g.distances[specifiedSet.get(tour[n - 1])][t];
+			int last = g.distances[realLastVertex][t];
 			if (tourLength == g.INFINITE || last == g.INFINITE) {
 				tourLength = -1;
 			}
@@ -173,13 +207,13 @@ public class AntColony {
 	 * @return next vertex; -1 if cannot find such a next vertex.
 	 */
 	private static int selectNextVertex(Ant a) {
+		probTo(a);
+
 		if (random.nextDouble() < pr) {
 			int t = random.nextInt(n - currentIndex);
 			int j = -1;
-			int realCur = specifiedSet.get(a.tour[currentIndex]);
 			for (int i = 0; i < n; i++) {
-				int dis = g.distances[realCur][specifiedSet.get(i)];
-				if (!a.visited[i] && dis != g.INFINITE && dis > 0) {
+				if (a.probs[i] > 0) {
 					j++;
 				}
 				if (j == t) {
@@ -188,7 +222,6 @@ public class AntColony {
 			}
 		}
 
-		probTo(a);
 		double r = random.nextDouble();
 		double total = 0;
 		for (int k = 0; k < n; k++) {
@@ -213,8 +246,25 @@ public class AntColony {
 		int realI = specifiedSet.get(i);
 
 		for (int k = 0; k < n; k++) {
+			if (ant.visited[k]) {
+				continue;
+			}
+
 			int realK = specifiedSet.get(k);
-			if (!ant.visited[k] && g.distances[realI][realK] != g.INFINITE) {
+
+			// Check if selected k, there will be a loop.
+			boolean willHaveLoop = false;
+			List<Integer> addedVertices = g.getShortestPath(realI, realK);
+			addedVertices.remove(0);
+			addedVertices.add(realK);
+			for (int v : addedVertices) {
+				if (ant.actualVisited[v]) {
+					willHaveLoop = true;
+					break;
+				}
+			}
+
+			if (!willHaveLoop && g.distances[realI][realK] != g.INFINITE) {
 				numerators[k] = Math.pow(trails[i][k], alpha) * Math.pow(1.0 / g.distances[realI][realK], beta);
 				denom += numerators[k];
 			}
@@ -258,7 +308,7 @@ public class AntColony {
 		for (Ant ant : ants) {
 			if (ant != null) {
 				if ((shortestPathLength == 0 && ant.tourLength > 0)
-						|| (shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
+						|| (ant.tourLength > 0 && shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
 					updateShortest(ant);
 				}
 			}

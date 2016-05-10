@@ -62,10 +62,10 @@ public final class AdvancedRoute {
 		String[] demands = condition.split("\\n");
 		String[] demand0 = demands[0].split(",|\\|");
 		// String[] demand1 = demands[1].split(",|\\|");
-		s = Integer.parseInt(demand0[1]);
-		t = Integer.parseInt(demand0[2]);
+		s = Integer.parseInt(demand0[0]);
+		t = Integer.parseInt(demand0[1]);
 
-		for (int i = 3; i < demand0.length; i++) {
+		for (int i = 2; i < demand0.length; i++) {
 			specifiedSet.add(Integer.parseInt(demand0[i]));
 		}
 
@@ -79,6 +79,7 @@ public final class AdvancedRoute {
 			for (int j = i + 1; j < shortestPath.size(); j++) {
 				if (shortestPath.get(i) == (shortestPath.get(j))) {
 					System.out.println(i + " " + j + " " + shortestPath.get(i) + " " + shortestPath.get(j));
+					System.out.println("invalid:"+ shortestPath);
 					return false;
 				}
 			}

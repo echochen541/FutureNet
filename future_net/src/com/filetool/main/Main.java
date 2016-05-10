@@ -18,19 +18,19 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = "test/case2/topo.csv";
-		String conditionFilePath = "test/case2/demand.csv";
-		String resultFilePath = "test/case2/result.csv";
+		// String graphFilePath = "test/case2/topo.csv";
+		// String conditionFilePath = "test/case2/demand.csv";
+		// String resultFilePath = "test/case2/result.csv";
 
-		// String graphFilePath = "test/case9/topo.csv";
-		// String conditionFilePath = "test/case9/demand.csv";
-		// String resultFilePath = "test/case9/result.csv";
+		String graphFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/topo.csv";
+		String conditionFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/demand.csv";
+		String resultFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/result.csv";
 
 		String graphContent = FileUtil.read(graphFilePath, null);
 		String conditionContent = FileUtil.read(conditionFilePath, null);
 
 		LogUtil.printLog("begin");
-		// Route.searchRoute(graphContent, conditionContent, resultFilePath);
+//		 Route.searchRoute(graphContent, conditionContent, resultFilePath);
 		AdvancedRoute.searchRoute(graphContent, conditionContent);
 		LogUtil.printLog("end");
 	}
