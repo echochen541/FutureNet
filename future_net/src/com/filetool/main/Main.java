@@ -2,36 +2,59 @@ package com.filetool.main;
 
 import com.filetool.util.FileUtil;
 import com.filetool.util.LogUtil;
-import com.routesearch.route.AdvancedRoute;
 import com.routesearch.route.Route;
 
 /**
  * 工具入口
  * 
- * @author echochen
- * @since 2016-3-4
+ * @author
+ * @since 2016-3-1
  * @version v1.0
  */
 public class Main {
 	public static void main(String[] args) {
+		// if (args.length != 3) {
+		// System.err.println("please input args: graphFilePath,
+		// conditionFilePath, resultFilePath");
+		// return;
+		// }
+
 		// String graphFilePath = args[0];
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		// String graphFilePath = "test/case2/topo.csv";
-		// String conditionFilePath = "test/case2/demand.csv";
-		// String resultFilePath = "test/case2/result.csv";
+		String graphFilePath = "test/case0/topo0.csv";
+		String conditionFilePath = "test/case0/demand0.csv";
+		String resultFilePath = "test/case0/result0.csv";
 
-		String graphFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/topo.csv";
-		String conditionFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/demand.csv";
-		String resultFilePath = "D:/Eclipse/workspace/future_net/future_net/test/case4/result.csv";
+		LogUtil.printLog("Begin");
 
-		String graphContent = FileUtil.read(graphFilePath, null);
-		String conditionContent = FileUtil.read(conditionFilePath, null);
+		// 读取输入文件
+		String[] graphContent = FileUtil.read(graphFilePath, null);
+		String[] conditionContent = FileUtil.read(conditionFilePath, null);
 
-		LogUtil.printLog("begin");
-//		 Route.searchRoute(graphContent, conditionContent, resultFilePath);
-		AdvancedRoute.searchRoute(graphContent, conditionContent);
-		LogUtil.printLog("end");
+		// 功能实现入口
+		String[] resultContents = Route.searchRoute(graphContent, conditionContent);
+
+		// 写入输出文件
+		if (hasResults(resultContents)) {
+			FileUtil.write(resultFilePath, resultContents, false);
+		} else {
+			FileUtil.write(resultFilePath, new String[] { "NA" }, false);
+		}
+		LogUtil.printLog("End");
 	}
+
+	private static boolean hasResults(String[] resultContents) {
+		if (resultContents == null) {
+			return false;
+		}
+		for (String contents : resultContents) {
+			if (contents != null && !contents.trim().isEmpty()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

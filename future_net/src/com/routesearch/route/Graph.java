@@ -19,7 +19,7 @@ public class Graph {
 	public int numOfVertices = 0;
 	public int numOfEdges = 0;
 
-	public void constructGraph(String graphContent) {
+	public void constructGraph(String[] graphContent) {
 		for (int i = 0; i < MAX_VERTICES; i++) {
 			for (int j = 0; j < MAX_VERTICES; j++) {
 				edgeWeights[i][j] = INFINITE;
@@ -32,7 +32,7 @@ public class Graph {
 			}
 		}
 
-		String[] lines = graphContent.split("\\n");
+		String[] lines = graphContent;
 		for (int i = 0; i < lines.length; i++) {
 			String[] line = lines[i].split(",");
 			int edgeID = Integer.parseInt(line[0]);
