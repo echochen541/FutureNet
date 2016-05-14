@@ -32,34 +32,44 @@ public final class Route {
 		g.floydWarshall();
 
 		// Step 5: ACO todo by yangjiacheng
-		ArrayList<String> path1 = new ArrayList<String>();
-		ArrayList<String> path2 = new ArrayList<String>();
-		AntColony ac1 = new AntColony(g, s, t, specifiedSet);
-		ac1.init();
-		StringBuffer sb1 = new StringBuffer();
-		for (int i = 0; i < AntColony.shortestPath.size() - 1; i++) {
-			sb1.append(g.edgeIDs[AntColony.shortestPath.get(i)][AntColony.shortestPath.get(i + 1)] + "|");
-			path1.add(g.edgeIDs[AntColony.shortestPath.get(i)][AntColony.shortestPath.get(i + 1)] + "");
-		}
-		System.out.println(AntColony.shortestPathLength + ": " + sb1.deleteCharAt(sb1.length() - 1).toString());
+		AntColony ac = new AntColony(g, s, t, specifiedSet);
+		List<Integer> path1 = new ArrayList<Integer>();
+		List<Integer> path2 = new ArrayList<Integer>();
 
-		ac1 = new AntColony(g, s, t, specifiedSet2);
-		ac1.init();
-		StringBuffer sb2 = new StringBuffer();
-		for (int i = 0; i < AntColony.shortestPath.size() - 1; i++) {
-			sb2.append(g.edgeIDs[AntColony.shortestPath.get(i)][AntColony.shortestPath.get(i + 1)] + "|");
-			path2.add(g.edgeIDs[AntColony.shortestPath.get(i)][AntColony.shortestPath.get(i + 1)] + "");
+		if (specifiedSet.size() == 0) {
+			path1 = g.getShortestPath(s, t);
+			path1.add(t);
+		} else {
+			ac = new AntColony(g, s, t, specifiedSet);
+			ac.init();
+			path1 = AntColony.shortestPath;
 		}
-		System.out.println(AntColony.shortestPathLength + ": " + sb2.deleteCharAt(sb2.length() - 1).toString());
-		specifiedSet.retainAll(path1);
-		specifiedSet2.retainAll(path2);
-		System.out.println(specifiedSet);
-		System.out.println(specifiedSet2);
+		StringBuffer sb1 = new StringBuffer();
+		for (int i = 0; i < path1.size() - 1; i++) {
+			sb1.append(g.edgeIDs[path1.get(i)][path1.get(i + 1)] + "|");
+		}
+
+		if (specifiedSet2.size() == 0) {
+			path2 = g.getShortestPath(s, t);
+			path2.add(t);
+		} else {
+			ac = new AntColony(g, s, t, specifiedSet2);
+			ac.init();
+			path2 = AntColony.shortestPath;
+		}
+		StringBuffer sb2 = new StringBuffer();
+		for (int i = 0; i < path2.size() - 1; i++) {
+			sb2.append(g.edgeIDs[path2.get(i)][path2.get(i + 1)] + "|");
+		}
+
+		path1.retainAll(path2);
+		System.out.println(path1);
+		
 		String[] result = new String[2];
-		result[0] = sb1.toString();
-		result[1] = sb2.toString();
-		// System.out.println(result[0]);
-		// System.out.println(result[1]);
+		result[0] = sb1.deleteCharAt(sb1.length() - 1).toString();
+		result[1] = sb2.deleteCharAt(sb2.length() - 1).toString();
+		System.out.println(result[0]);
+		System.out.println(result[1]);
 		return result;
 	}
 

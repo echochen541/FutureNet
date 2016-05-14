@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class AntColony {
 	public static Graph g;
-
+	public static boolean flag;
 	// conditions
 	public static int s = 0;
 	public static int t = 0;
@@ -46,6 +46,7 @@ public class AntColony {
 	public static int shortestPathLength = 0;
 
 	public AntColony(Graph g, int s, int t, List<Integer> specifiedSet) {
+		flag = false;
 		AntColony.g = g;
 		AntColony.s = s;
 		AntColony.t = t;
@@ -59,7 +60,7 @@ public class AntColony {
 		n = specifiedSet.size();
 		m = (int) (n * antNumFactor);
 		antNumFactor = 5;
-		maxIteration = 500;
+		maxIteration = 1000;
 		iteration = 0;
 		trails = new double[n][n];
 		ants = new Ant[m];
@@ -86,6 +87,8 @@ public class AntColony {
 		}
 		iteration = 0;
 		while (iteration < maxIteration) {
+			if (flag)
+				return;
 			setupAnts();
 			moveAnts();
 			updateTrails();
@@ -304,6 +307,11 @@ public class AntColony {
 	private static void updateShortest() {
 		for (Ant ant : ants) {
 			if (ant != null) {
+				if (shortestPathLength == 0 && ant.tourLength > 0) {
+					updateShortest(ant);
+					flag = true;
+					return;
+				}
 				if ((shortestPathLength == 0 && ant.tourLength > 0)
 						|| (ant.tourLength > 0 && shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
 					updateShortest(ant);
