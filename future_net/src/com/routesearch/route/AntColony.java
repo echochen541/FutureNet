@@ -44,8 +44,19 @@ public class AntColony {
 	public static ArrayList<ArrayList<Integer>> shortestPaths;
 	public static ArrayList<Integer> shortestPath;
 	public static int shortestPathLength = 0;
+	public static List<Integer> prevPath;
+	public static boolean hasPrev = false;
+	public static int intersectSize;
 
-	public AntColony(Graph g, int s, int t, List<Integer> specifiedSet) {
+	public AntColony(Graph g, int s, int t, List<Integer> specifiedSet, List<Integer> prevPath) {
+		if (prevPath == null) {
+			this.prevPath = null;
+		} else {
+			hasPrev = true;
+			intersectSize = g.INFINITE;
+			this.prevPath = prevPath;
+		}
+
 		flag = false;
 		AntColony.g = g;
 		AntColony.s = s;
@@ -60,7 +71,7 @@ public class AntColony {
 		n = specifiedSet.size();
 		m = (int) (n * antNumFactor);
 		antNumFactor = 5;
-		maxIteration = 1000;
+		maxIteration = 200;
 		iteration = 0;
 		trails = new double[n][n];
 		ants = new Ant[m];
@@ -87,12 +98,17 @@ public class AntColony {
 		}
 		iteration = 0;
 		while (iteration < maxIteration) {
-			if (flag)
+			if (!hasPrev && flag)
 				return;
+
+			if (hasPrev && intersectSize < 3) {
+				return;
+			}
 			setupAnts();
 			moveAnts();
 			updateTrails();
-			updateShortest();
+			if(!hasPrev)
+				updateShortest();
 			iteration++;
 		}
 	}
@@ -297,6 +313,10 @@ public class AntColony {
 				}
 
 				double contribution = Q / ant.tourLength;
+				if (hasPrev) {
+					contribution = intersectSize / calIntersectSize(ant);
+				}
+
 				for (int i = 0; i < n - 1; i++) {
 					trails[ant.tour[i]][ant.tour[i + 1]] += contribution;
 				}
@@ -304,17 +324,67 @@ public class AntColony {
 		}
 	}
 
+	private static int calIntersectSize(Ant ant) {
+		List<Integer> tmpPath = new LinkedList<>();
+		int[] tour = ant.tour;
+		tmpPath.addAll(g.getShortestPath(s, specifiedSet.get(tour[0])));
+
+		int len = tour.length - 1;
+		for (int i = 0; i < len; i++) {
+			tmpPath.addAll(g.getShortestPath(specifiedSet.get(tour[i]), specifiedSet.get(tour[i + 1])));
+		}
+		tmpPath.addAll(g.getShortestPath(specifiedSet.get(tour[n - 1]), t));
+		tmpPath.add(t);
+
+		ArrayList<Integer> tmpPath2 = new ArrayList<>(tmpPath);
+
+		tmpPath.retainAll(prevPath);
+
+		int size = tmpPath.size();
+		if (size < intersectSize) {
+			intersectSize = size;
+			shortestPath = tmpPath2;
+			shortestPathLength = ant.tourLength;
+		}
+		return size;
+	}
+
 	private static void updateShortest() {
 		for (Ant ant : ants) {
 			if (ant != null) {
-				if (shortestPathLength == 0 && ant.tourLength > 0) {
-					updateShortest(ant);
-					flag = true;
-					return;
-				}
-				if ((shortestPathLength == 0 && ant.tourLength > 0)
-						|| (ant.tourLength > 0 && shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
-					updateShortest(ant);
+				if (hasPrev) {
+					List<Integer> tmpPath = new LinkedList<>();
+					int[] tour = ant.tour;
+					tmpPath.addAll(g.getShortestPath(s, specifiedSet.get(tour[0])));
+
+					int len = tour.length - 1;
+					for (int i = 0; i < len; i++) {
+						tmpPath.addAll(g.getShortestPath(specifiedSet.get(tour[i]), specifiedSet.get(tour[i + 1])));
+					}
+					tmpPath.addAll(g.getShortestPath(specifiedSet.get(tour[n - 1]), t));
+					tmpPath.add(t);
+
+					ArrayList<Integer> tmpPath2 = new ArrayList<>(tmpPath);
+
+					tmpPath.retainAll(prevPath);
+
+					int size = tmpPath.size();
+					if (size < intersectSize) {
+						intersectSize = size;
+						shortestPath = tmpPath2;
+						shortestPathLength = ant.tourLength;
+					}
+
+				} else {
+					if (shortestPathLength == 0 && ant.tourLength > 0) {
+						updateShortest(ant);
+						flag = true;
+						return;
+					}
+					if ((shortestPathLength == 0 && ant.tourLength > 0)
+							|| (ant.tourLength > 0 && shortestPathLength > 0 && ant.tourLength < shortestPathLength)) {
+						updateShortest(ant);
+					}
 				}
 			}
 		}

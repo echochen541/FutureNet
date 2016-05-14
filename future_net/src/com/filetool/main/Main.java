@@ -23,9 +23,9 @@ public class Main {
 		// String conditionFilePath = args[1];
 		// String resultFilePath = args[2];
 
-		String graphFilePath = "test/topo1.csv";
-		String conditionFilePath = "test/demand1.csv";
-		String resultFilePath = "test/result1.csv";
+		String graphFilePath = "test/case0/topo0.csv";
+		String conditionFilePath = "test/case0/demand0.csv";
+		String resultFilePath = "test/case0/result0.csv";
 
 		LogUtil.printLog("Begin");
 

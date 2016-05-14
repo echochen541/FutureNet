@@ -32,7 +32,7 @@ public final class Route {
 		g.floydWarshall();
 
 		// Step 5: ACO todo by yangjiacheng
-		AntColony ac = new AntColony(g, s, t, specifiedSet);
+		AntColony ac = null;
 		List<Integer> path1 = new ArrayList<Integer>();
 		List<Integer> path2 = new ArrayList<Integer>();
 
@@ -40,7 +40,7 @@ public final class Route {
 			path1 = g.getShortestPath(s, t);
 			path1.add(t);
 		} else {
-			ac = new AntColony(g, s, t, specifiedSet);
+			ac = new AntColony(g, s, t, specifiedSet, null);
 			ac.init();
 			path1 = AntColony.shortestPath;
 		}
@@ -53,7 +53,8 @@ public final class Route {
 			path2 = g.getShortestPath(s, t);
 			path2.add(t);
 		} else {
-			ac = new AntColony(g, s, t, specifiedSet2);
+			
+			ac = new AntColony(g, s, t, specifiedSet2, path1);
 			ac.init();
 			path2 = AntColony.shortestPath;
 		}
