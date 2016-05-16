@@ -1,1 +1,1 @@
-project for 第二届华为软件精英挑战赛
+project for 2016华为软件精英挑战赛
